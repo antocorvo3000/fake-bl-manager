@@ -11,3 +11,7 @@ build_windows:
 	x86_64-w64-mingw32-gcc -o ./build/toolkit_win/bin/vbmetabackup.exe vbmetabackup.c
 	x86_64-w64-mingw32-gcc -o ./build/toolkit_win/bin/vbmetaport.exe vbmetaport.c
 	x86_64-w64-mingw32-gcc -o ./build/toolkit_win/vbmetaflasher.exe vbmetaflasher.c -lkernel32
+
+build_android:
+	mkdir -p build/toolkit_android
+	bash ./tools/build_vbmetafixer_android.sh

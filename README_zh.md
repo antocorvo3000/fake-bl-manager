@@ -31,6 +31,9 @@
 - **`make target_magisk_module`**
   使用 NDK 将修补工具交叉编译至 Android 原生平台架构，并构建 EDK2 载荷。这些组件将被封装为一个标准的 Magisk 模块。
 
+- **`make target_toolkit_android`**
+  构建独立的 Android arm64 工具包（`toolkit_android.zip`），包含 Android 原生二进制工具，可在设备上脱离 Magisk 模块独立使用。
+
 - **`make target_generic_efi`**
   内嵌补丁工具，多机型通用，但是高版本兼容不佳，逐步弃用。
 

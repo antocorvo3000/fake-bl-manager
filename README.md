@@ -30,6 +30,9 @@ You must be on a **Linux** host to build the project:
 - **`make target_magisk_module`**
   Cross-compiles the patcher tools for Android using your NDK and builds the EDK2 payload.
 
+- **`make target_toolkit_android`**
+  Produces a standalone Android arm64 toolkit (`toolkit_android.zip`) with Android-native binaries for on-device use outside of the Magisk module.
+
 - **`make target_generic_efi`**
   Embeds the patch tools, aiming to be universal across multiple device models. However, high-version compatibility is poor, and it is gradually being deprecated.
 

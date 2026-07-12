@@ -25,7 +25,8 @@ jobs:
       run: |
         make target_toolkit_linux
         make target_toolkit_windows
-      
+        make target_toolkit_android
+
     - name: Build Magisk Module
       run: |
         make target_magisk_module
@@ -34,16 +35,19 @@ jobs:
       run: |
         make tools_vbmetafixer_linux
         make tools_vbmetafixer_windows
+        make tools_vbmetafixer_android
 
     - name: Unpack artifacts
       run: |
-        mkdir -p artifacts/toolkit_linux artifacts/toolkit_windows artifacts/magisk_module
-        mkdir -p artifacts/vbmetafixer_linux artifacts/vbmetafixer_windows
+        mkdir -p artifacts/toolkit_linux artifacts/toolkit_windows artifacts/toolkit_android artifacts/magisk_module
+        mkdir -p artifacts/vbmetafixer_linux artifacts/vbmetafixer_windows artifacts/vbmetafixer_android
         unzip targets/toolkit_linux/build/toolkit_linux.zip -d artifacts/toolkit_linux
         unzip targets/toolkit_windows/build/toolkit_windows.zip -d artifacts/toolkit_windows
+        unzip targets/toolkit_android/build/toolkit_android.zip -d artifacts/toolkit_android
         unzip targets/magisk_module/build/module_android.zip -d artifacts/magisk_module
         cp -r tools/vbmetafixer/build/toolkit/* artifacts/vbmetafixer_linux/
         cp -r tools/vbmetafixer/build/toolkit_win/* artifacts/vbmetafixer_windows/
+        cp -r tools/vbmetafixer/build/toolkit_android/* artifacts/vbmetafixer_android/
 
     - name: Upload Linux Toolkit
       uses: actions/upload-artifact@v4
@@ -56,6 +60,12 @@ jobs:
       with:
         name: toolkit_windows
         path: artifacts/toolkit_windows/*
+
+    - name: Upload Android Toolkit
+      uses: actions/upload-artifact@v4
+      with:
+        name: toolkit_android
+        path: artifacts/toolkit_android/*
 
     - name: Upload Magisk Module
       uses: actions/upload-artifact@v4
@@ -74,3 +84,9 @@ jobs:
       with:
         name: vbmetafixer_windows
         path: artifacts/vbmetafixer_windows/*
+
+    - name: Upload VBMeta Fixer Android
+      uses: actions/upload-artifact@v4
+      with:
+        name: vbmetafixer_android
+        path: artifacts/vbmetafixer_android/*

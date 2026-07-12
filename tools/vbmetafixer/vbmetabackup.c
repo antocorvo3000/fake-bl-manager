@@ -212,17 +212,26 @@ static int write_file(const char *path, const uint8_t *data, size_t size) {
 }
 
 static void wait_for_device(void) {
+#ifdef __ANDROID__
+    /* Running on-device: block devices are directly accessible, nothing to wait for. */
+    (void)adb_path;
+#else
     char cmd[MAX_CMD_LEN];
     printf("Waiting for device...\n");
     snprintf(cmd, sizeof(cmd), "%s wait-for-device", adb_path);
     run_cmd(cmd);
     printf("Device connected\n");
+#endif
 }
 
 static int get_active_slot(char *slot, size_t slot_size) {
     char cmd[MAX_CMD_LEN];
 
+#ifdef __ANDROID__
+    snprintf(cmd, sizeof(cmd), "getprop ro.boot.slot_suffix");
+#else
     snprintf(cmd, sizeof(cmd), "%s shell getprop ro.boot.slot_suffix", adb_path);
+#endif
     FILE *fp = popen(cmd, "r");
     if (!fp) return -1;
 
@@ -237,7 +246,11 @@ static int get_active_slot(char *slot, size_t slot_size) {
         return 0;
     }
 
+#ifdef __ANDROID__
+    snprintf(cmd, sizeof(cmd), "getprop ro.boot.slot");
+#else
     snprintf(cmd, sizeof(cmd), "%s shell getprop ro.boot.slot", adb_path);
+#endif
     fp = popen(cmd, "r");
     if (!fp) return -1;
 
@@ -260,13 +273,33 @@ static int get_active_slot(char *slot, size_t slot_size) {
 /* pull partition from device, read into memory, delete local img, return buffer */
 static uint8_t *pull_and_read_partition(const char *partition, const char *slot,
                                         const char *output_dir, size_t *out_size) {
-    char block_dev[MAX_PATH_LEN], remote_tmp[MAX_PATH_LEN];
-    char local_path[MAX_PATH_LEN], cmd[MAX_CMD_LEN];
+    char block_dev[MAX_PATH_LEN], remote_tmp[MAX_PATH_LEN], cmd[MAX_CMD_LEN];
 
     snprintf(block_dev, sizeof(block_dev),
              "/dev/block/by-name/%s%s", partition, slot);
     snprintf(remote_tmp, sizeof(remote_tmp),
              DEVICE_TEMP_DIR "/%s%s.img", partition, slot);
+
+#ifdef __ANDROID__
+    /* On-device: dd the block device to a temp file, then read it.
+     * dd'ing to a regular file first avoids block-device ftell() size quirks. */
+    (void)output_dir;
+    printf("\nReading partition: %s%s\n", partition, slot);
+
+    snprintf(cmd, sizeof(cmd), "dd if=%s of=%s bs=4096 2>/dev/null",
+             block_dev, remote_tmp);
+    if (run_cmd(cmd) != 0) return NULL;
+
+    uint8_t *data = read_file(remote_tmp, out_size);
+    remove(remote_tmp);
+    if (!data) {
+        fprintf(stderr, "Failed to read: %s\n", remote_tmp);
+        return NULL;
+    }
+    printf("  Read %s%s (%zu bytes)\n", partition, slot, *out_size);
+    return data;
+#else
+    char local_path[MAX_PATH_LEN];
     snprintf(local_path, sizeof(local_path),
              "%s/%s%s.img", output_dir, partition, slot);
 
@@ -298,6 +331,7 @@ static uint8_t *pull_and_read_partition(const char *partition, const char *slot,
     remove(local_path);
 
     return data;
+#endif
 }
 
 /* extract vbmeta from partition data and save as {name}.vbmeta */
@@ -369,11 +403,11 @@ int main(int argc, char **argv) {
 
     static const char *roots[] = {
         "vbmeta",
-/** /
         "vbmeta_system",
-        "boot", "dtbo", "init_boot", "pvmfw",
-        "qtvm-dtbo", "recovery", "vendor_boot",
-        /**/
+        "recovery",
+        "vendor_boot",
+        "boot",
+        "init_boot",
         NULL
     };
 
