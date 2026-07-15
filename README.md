@@ -2,8 +2,6 @@
 
 A simple, safe, and controlled tool for managing Fake Locked Bootloader on Snapdragon 8 Gen 5 / 8 Elite Gen 5 devices.
 
-**This is a fork of [GBL Root Canoe](https://github.com/superturtlee/gbl_root_canoe) with enhanced safety, simplicity, and control features.**
-
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/antocorvo3000/fake-bl-manager/releases)
 
@@ -11,12 +9,14 @@ A simple, safe, and controlled tool for managing Fake Locked Bootloader on Snapd
 
 ## What is Fake BL Manager?
 
-Fake BL Manager is an improved version of `gbl_root_canoe` that provides:
+Fake BL Manager is a complete rework of the original concept designed to provide:
 
 - **Simple**: One-click installation with interactive UI
 - **Safe**: Automatic GBL detection, rollback checks, and backups
 - **Controlled**: Complete downgrade management with version databases
 - **Complete**: TWRP installer, Magisk module, and PC tool included
+
+---
 
 ## Features
 
@@ -47,40 +47,45 @@ Fake BL Manager is an improved version of `gbl_root_canoe` that provides:
 - Quick backup for critical partitions
 - Easy restore with verification
 
+---
+
 ## Supported Devices
 
+### Xiaomi
 - Xiaomi 14 Ultra / 14 Pro / 14 / 13T Pro
+
+### OnePlus
 - OnePlus 12 / 11 / 10T
+
+### Other
 - Other Snapdragon 8 Gen 5 / 8 Elite Gen 5 devices
+
+---
 
 ## Installation Methods
 
 ### 1. TWRP Installer
 Flashable ZIP for TWRP recovery:
-```
 - Auto-detection and checks
 - Interactive installation menu
 - Optional backup
 - Format request when needed
-```
 
 ### 2. Magisk Module
 Module for Magisk / KernelSU / APatch:
-```
 - Webview UI for monitoring
 - One-click install
 - OTA retention
 - Background service
-```
 
 ### 3. PC Tool
 Desktop application for Linux / Windows / macOS:
-```
 - GUI for full control
 - ABL analysis and patching
 - Rollback version check
 - Backup / restore
-```
+
+---
 
 ## Quick Start
 
@@ -101,6 +106,8 @@ Desktop application for Linux / Windows / macOS:
 2. Extract and run
 3. Follow the GUI instructions
 
+---
+
 ## Documentation
 
 - [Installation Guide](wiki/docs/install.md)
@@ -109,6 +116,8 @@ Desktop application for Linux / Windows / macOS:
 - [Backup & Restore](wiki/docs/backup.md)
 - [OTA Protection](wiki/docs/ota.md)
 - [Troubleshooting](wiki/docs/troubleshooting.md)
+
+---
 
 ## Disclaimer
 
@@ -121,13 +130,14 @@ While Fake BL Manager includes multiple safety checks, there is always a risk of
 
 **Always backup your device before installing!**
 
+---
+
 ## Credits
 
-- Original project: [GBL Root Canoe](https://github.com/superturtlee/gbl_root_canoe)
-- Fake BL Manager: Enhanced with safety, simplicity, and control
+- Author: Fake BL Manager Team
+
+---
 
 ## License
 
-This project uses the original GPL license from GBL Root Canoe. See [LICENSE](LICENSE) for details.
-
-Note: The modified components in Fake BL Manager are licensed under GPL as well, in accordance with the original project's terms.
+This project uses the GPL v3 license. See [LICENSE](LICENSE) for details.
