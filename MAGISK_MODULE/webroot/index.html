@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake BL Manager - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fake BL Manager</h1>
+            <p>Simple, Safe, Controlled Installation</p>
+        </header>
+        
+        <div class="status-panel">
+            <h2>Current Status</h2>
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>GBL Exploit</h3>
+                    <div id="gbl-status" class="status-checking">Checking...</div>
+                </div>
+                <div class="status-card">
+                    <h3>Patch Status</h3>
+                    <div id="patch-status" class="status-checking">Checking...</div>
+                </div>
+                <div class="status-card">
+                    <h3>Rollback Index</h3>
+                    <div id="rollback-status" class="status-checking">Checking...</div>
+                </div>
+                <div class="status-card">
+                    <h3>Device</h3>
+                    <div id="device-info" class="status-info">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions-panel">
+            <h2>Actions</h2>
+            <div class="action-buttons">
+                <button id="btn-install" class="btn btn-primary">
+                    Install Patch
+                </button>
+                <button id="btn-downgrade" class="btn btn-secondary">
+                    ABL Downgrade
+                </button>
+                <button id="btn-backup" class="btn btn-secondary">
+                    Backup System
+                </button>
+                <button id="btn-log" class="btn btn-info">
+                    View Logs
+                </button>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h2>Info</h2>
+            <p>Fake BL Manager helps you install a Fake Locked Bootloader on Snapdragon 8 Gen 5 / 8 Elite devices.</p>
+            <p>This allows you to bypass bootloader unlock detection while keeping data accessible.</p>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

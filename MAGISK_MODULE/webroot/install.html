@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake BL Manager - Install</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fake BL Manager - Install</h1>
+        </header>
+        
+        <div class="progress-panel">
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div id="progress-text" class="progress-text">Ready to install</div>
+        </div>
+        
+        <div class="checklist-panel">
+            <h2>Checklist</h2>
+            <ul id="checklist">
+                <li id="check-gbl" class="check-item">GBL vulnerability check</li>
+                <li id="check-abl" class="check-item">ABL version check</li>
+                <li id="check-rollback" class="check-item">Rollback version check</li>
+                <li id="check-backup" class="check-item">System backup (recommended)</li>
+                <li id="check-install" class="check-item">Install patch</li>
+            </ul>
+        </div>
+        
+        <div class="options-panel">
+            <h2>Options</h2>
+            <div class="option-item">
+                <label>
+                    <input type="checkbox" id="opt-backup" checked>
+                    Create system backup before installation
+                </label>
+            </div>
+            <div class="option-item">
+                <label>
+                    <input type="checkbox" id="opt-downgrade">
+                    Perform ABL downgrade if needed
+                </label>
+            </div>
+            <div class="option-item">
+                <label>
+                    <input type="checkbox" id="opt-verify">
+                    Verify installation after patching
+                </label>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="btn-start-install" class="btn btn-primary" disabled>
+                Start Installation
+            </button>
+            <button id="btn-cancel" class="btn btn-secondary">
+                Cancel
+            </button>
+        </div>
+        
+        <div class="status-panel" id="install-status" style="display: none;">
+            <h2>Installation Status</h2>
+            <div id="install-result" class="status-message"></div>
+            <div id="install-log" class="log-output"></div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

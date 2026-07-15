@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake BL Manager - Downgrade</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fake BL Manager - ABL Downgrade</h1>
+        </header>
+        
+        <div class="info-panel">
+            <h2>About Downgrade</h2>
+            <p>ABL downgrade allows you to use older versions of the Android Bootloader that contain the GBL exploit.</p>
+            <p>This is necessary when your current ABL version (>= OS3.0.300) has the GBL vulnerability patched.</p>
+        </div>
+        
+        <div class="status-panel">
+            <h2>Current Status</h2>
+            <div class="status-card">
+                <h3>Current ABL Version</h3>
+                <div id="current-version">Loading...</div>
+            </div>
+            <div class="status-card">
+                <h3>Rollback Index</h3>
+                <div id="current-rollback">Loading...</div>
+            </div>
+            <div class="status-card">
+                <h3>Safe Downgrade Version</h3>
+                <div id="safe-version">Loading...</div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="btn-check" class="btn btn-primary">
+                Check Downgrade Status
+            </button>
+            <button id="btn-downgrade" class="btn btn-danger" disabled>
+                Perform Downgrade
+            </button>
+        </div>
+        
+        <div class="warning-panel">
+            <h2>⚠️ Warning</h2>
+            <p>Downgrading ABL may trigger anti-rollback protection if the rollback index increases.</p>
+            <p>Always check rollback version before downgrading.</p>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

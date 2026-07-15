@@ -1,0 +1,10 @@
+# Fake BL Manager - Update Configuration
+
+{
+  "version": "1.0.0",
+  "versionCode": 1,
+  "zipUrl": "https://github.com/antocorvo3000/fake-bl-manager/releases/latest/download/fake-bl-manager-twrp.zip",
+  "changelog": "https://github.com/antocorvo3000/fake-bl-manager/blob/main/CHANGELOG.md",
+  "minMagisk": 2400,
+  "updateUrl": "https://raw.githubusercontent.com/antocorvo3000/fake-bl-manager/main/update.json"
+}

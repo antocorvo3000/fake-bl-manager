@@ -1,96 +1,133 @@
-# GBL Root Canoe
+# Fake BL Manager
 
-[中文版](README_zh.md)
+A simple, safe, and controlled tool for managing Fake Locked Bootloader on Snapdragon 8 Gen 5 / 8 Elite Gen 5 devices.
 
-`gbl_root_canoe` is an EDK2-based workspace for patching the EFI applications within Qualcomm ABL (Android Bootloader) images. It leverages a GBL (Generic Bootloader Loader) vulnerability to inject custom EFIs, primarily intended for achieving a **Fake Locked Bootloader** state on Snapdragon 8 Gen 5 / 8 Elite (Gen 5) devices to bypass bootloader unlock detection. The patched EFI is typically flashed into the `efisp` partition.
+**This is a fork of [GBL Root Canoe](https://github.com/superturtlee/gbl_root_canoe) with enhanced safety, simplicity, and control features.**
 
----
-
-## Builder Guide
-
-This section is for developers who want to compile the toolkits from source.
-
-### Prerequisites
-You must be on a **Linux** host to build the project:
-- `gcc` / `clang`, `lld`, `make`, `zip`, `python3`
-- `liblzma-dev` (for compiling `extractfv`)
-- **Android NDK** (Required for `make build_module` to cross-compile tools for Android)
-- **MinGW-w64**
-
-### Build Targets
-
-**Note:** You **do not** need to provide an `abl.img` to build the distributable toolkits or Magisk module.
-
-- **`make target_toolkit_linux`**
-  Builds the EDK2 native payload (`loader.elf`) and compiles the patching utilities (`extractfv`, `patch_abl`, `elf_inject`, etc.) for Linux.
-
-- **`make target_toolkit_windows`**
-  Similar to `dist_loader`, but cross-compiles the patching utilities into Windows `.exe` programs using MinGW-w64.
-
-- **`make target_magisk_module`**
-  Cross-compiles the patcher tools for Android using your NDK and builds the EDK2 payload.
-
-- **`make target_toolkit_android`**
-  Produces a standalone Android arm64 toolkit (`toolkit_android.zip`) with Android-native binaries for on-device use outside of the Magisk module.
-
-- **`make target_generic_efi`**
-  Embeds the patch tools, aiming to be universal across multiple device models. However, high-version compatibility is poor, and it is gradually being deprecated.
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/antocorvo3000/fake-bl-manager/releases)
 
 ---
 
-## User Guide
+## What is Fake BL Manager?
 
-For more detailed instructions, please refer to the [Wiki](https://github.com/superturtlee/gbl_root_canoe/wiki).
+Fake BL Manager is an improved version of `gbl_root_canoe` that provides:
 
-### 1. Using the Magisk Module (On-Device)
+- **Simple**: One-click installation with interactive UI
+- **Safe**: Automatic GBL detection, rollback checks, and backups
+- **Controlled**: Complete downgrade management with version databases
+- **Complete**: TWRP installer, Magisk module, and PC tool included
 
-The Magisk module is designed to run directly on your rooted Android device.
+## Features
 
-**Requirements:**
-- Device must be Snapdragon 8 Gen 5 / 8 Elite (Gen 5).
-- Bootloader must be unlocked.
-- Kernel must NOT have Baseband Guard.
+### Simple Installation
+- Automatic device detection
+- One-click install with progress bar
+- Interactive UI in TWRP and webview
 
-**Installation & Usage:**
-When flashing the Magisk module via a root manager (like KernelSU, Magisk, or APatch), the customized script will interact with you using the volume keys:
-- **Volume Up (First-time installation):** The script automatically extracts the live `.abl` image, patches it, and flashes the patched file directly to `/dev/block/by-name/efisp`. After this finishes, you must reboot into Recovery mode and **format Data**. Once booted, install this module again (selecting Volume Down the second time) to complete the installation.
-- **Volume Down (OTA retention or post-format):** Used for retaining the BL version after an OTA update. Before updating OTA, use the module to automatically downgrade ABL, then reboot the system.
+### Safety Checks
+- GBL vulnerability detection
+- Rollback version verification
+- System backup before changes
+- Verify installation after patching
 
-### 2. Using the PC Toolkits (Linux / Windows)
+### ABL Downgrade
+- Controlled ABL version management
+- Anti-rollback protection check
+- Automatic downgrade when needed
+- Safe version database
 
-If you downloaded the `target_toolkit_linux` or `target_toolkit_windows` zip files:
-1. Extract the toolkit zip on your PC.
-2. Place your device's stock `abl.img` inside the `images/` (or `images\`) directory of the toolkit.
-3. **Linux:** Run `bash build.sh` (or `make build`). **Windows:** Run `build.bat`.
-4. The scripts will extract, patch, and inject the custom payload, outputting the modified file `ABL_with_superfastboot.efi`. (Check the output logs; if it says "Warning: Failed to patch ABL GBL", the device is not vulnerable and ABL needs to be downgraded).
+### OTA Protection
+- Automatic patch after OTA updates
+- Version retention system
+- Conflict detection
 
-### 3. Using Pre-patched EFIs
-Download a specific release version that contains the phone model or codename in its filename. Use `ABL_with_superfastboot.efi` or `ABL.efi` from the package to boot or flash via `fastboot` commands (e.g., `fastboot flash efisp ABL_with_superfastboot.efi`). It is highly recommended to use the version with `superfastboot` to preserve fallback fastboot-flashing capabilities.
+### Backup & Restore
+- Full system backup (ABL, vbmeta, boot)
+- Quick backup for critical partitions
+- Easy restore with verification
 
-### 4. Using Generic EFIs (Deprecated)
-Download `generic_superfastboot.efi` and perform the relevant flashing steps. Due to compatibility issues and instability across different OEM device features, it might perform poorly on certain models or OS versions, and is **no longer recommended**.
+## Supported Devices
 
-### 5. OTA Upgrade
-Before rebooting for an OTA update, use the module to flash and retain the old ABL version. If you are doing a major version upgrade, it is recommended to check "Update efisp", otherwise the device might get stuck on the initial boot screen.
+- Xiaomi 14 Ultra / 14 Pro / 14 / 13T Pro
+- OnePlus 12 / 11 / 10T
+- Other Snapdragon 8 Gen 5 / 8 Elite Gen 5 devices
 
-### 6. Superfastboot Usage Instructions
-When OEM Unlocking is enabled and the white warning text appears on boot, you must press **Volume Down** to enter Superfastboot mode.
-Common commands include:
-- **Temp-boot an EFI file (without flashing)**: `fastboot boot xxx.efi`
-- **Lock and Unlock (BL related)**:
-  - Lock BL, triggers a data wipe: `fastboot flashing lock`
-  - Unlock BL, no data wipe: `fastboot flashing unlock` or `fastboot flashing unlock_critical`
-  - *Note: If the TEE status is inconsistent, the device will refuse to provide the data key, rendering data inaccessible.*
-- **Flashing and Erasing**:
-  - `fastboot flash <partition> <file.img>`
-  - `fastboot erase <partition>`
-- **Rebooting**:
-  - `fastboot reboot bootloader` (Next normal boot enters Official Fastboot)
-  - `fastboot reboot recovery`
-  - `fastboot reboot`
+## Installation Methods
 
-### 7. Explanation of Different Variants
-1. `ABL.efi`: The patched ABL.
-2. `ABL_original`: For developers to analyze in IDA, used for error reporting. **DO NOT flash**.
-3. `ABL_with_superfastboot.efi`: The patched ABL integrated with superfastboot.
-4. `loader.elf`: The superfastboot binary file. Unlinked to EFI format, it is meant to link with toolbox. Cannot be flashed directly.
+### 1. TWRP Installer
+Flashable ZIP for TWRP recovery:
+```
+- Auto-detection and checks
+- Interactive installation menu
+- Optional backup
+- Format request when needed
+```
+
+### 2. Magisk Module
+Module for Magisk / KernelSU / APatch:
+```
+- Webview UI for monitoring
+- One-click install
+- OTA retention
+- Background service
+```
+
+### 3. PC Tool
+Desktop application for Linux / Windows / macOS:
+```
+- GUI for full control
+- ABL analysis and patching
+- Rollback version check
+- Backup / restore
+```
+
+## Quick Start
+
+### From TWRP
+1. Download `fake-bl-manager-twrp.zip`
+2. Flash in TWRP
+3. Follow the interactive menu
+4. Reboot to system
+
+### From Magisk
+1. Download `fake-bl-manager-module.zip`
+2. Install via Magisk / KernelSU
+3. Open webview UI (localhost:8080)
+4. Click "Install"
+
+### From PC
+1. Download `fake-bl-manager-pc.tar.gz`
+2. Extract and run
+3. Follow the GUI instructions
+
+## Documentation
+
+- [Installation Guide](wiki/docs/install.md)
+- [Downgrade Guide](wiki/docs/downgrade.md)
+- [Rollback Check](wiki/docs/rollback.md)
+- [Backup & Restore](wiki/docs/backup.md)
+- [OTA Protection](wiki/docs/ota.md)
+- [Troubleshooting](wiki/docs/troubleshooting.md)
+
+## Disclaimer
+
+**Use at your own risk!**
+
+While Fake BL Manager includes multiple safety checks, there is always a risk of:
+- Bootloop if patch fails
+- Data loss if format required
+- Brick if rollback protection triggered
+
+**Always backup your device before installing!**
+
+## Credits
+
+- Original project: [GBL Root Canoe](https://github.com/superturtlee/gbl_root_canoe)
+- Fake BL Manager: Enhanced with safety, simplicity, and control
+
+## License
+
+This project uses the original GPL license from GBL Root Canoe. See [LICENSE](LICENSE) for details.
+
+Note: The modified components in Fake BL Manager are licensed under GPL as well, in accordance with the original project's terms.
