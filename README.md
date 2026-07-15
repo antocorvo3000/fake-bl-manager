@@ -1,9 +1,10 @@
 # Fake BL Manager
 
+**⚠️ UNDER DEVELOPMENT - NOT READY FOR PRODUCTION USE**
+
 A simple, safe, and controlled tool for managing Fake Locked Bootloader on Snapdragon 8 Gen 5 / 8 Elite Gen 5 devices.
 
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/antocorvo3000/fake-bl-manager/releases)
 
 ---
 
@@ -91,22 +92,25 @@ Desktop application for Linux / Windows / macOS:
 
 ## Quick Start
 
-### From TWRP
-1. Download `fake-bl-manager-twrp.zip`
-2. Flash in TWRP
-3. Follow the interactive menu
-4. Reboot to system
+**⚠️ This project is under development. No release binaries are available yet.**
 
-### From Magisk
-1. Download `fake-bl-manager-module.zip`
-2. Install via Magisk / KernelSU
-3. Open webview UI (localhost:8080)
-4. Click "Install"
+To use this project, you need to:
+1. Clone this repository
+2. Build the binaries from source
+3. Follow the installation instructions in the `TWRP_INSTALLER/` and `MAGISK_MODULE/` directories
 
-### From PC
-1. Download `fake-bl-manager-pc.tar.gz`
-2. Extract and run
-3. Follow the GUI instructions
+---
+
+## Development Status
+
+**Status:** Under development - NOT READY FOR PRODUCTION
+
+**Next steps before release:**
+- [ ] Build TWRP installer ZIP
+- [ ] Build Magisk module ZIP  
+- [ ] Build PC tool binaries
+- [ ] Add complete documentation
+- [ ] Testing on physical devices
 
 ---
 
@@ -143,3 +147,13 @@ While Fake BL Manager includes multiple safety checks, there is always a risk of
 ## License
 
 This project uses the GPL v3 license. See [LICENSE](LICENSE) for details.
+
+---
+
+## Disclaimer
+
+**This project is currently under development and not ready for production use.**
+
+Use at your own risk. The installation process may brick your device if not done correctly.
+
+---
