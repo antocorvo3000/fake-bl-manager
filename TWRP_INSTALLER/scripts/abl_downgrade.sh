@@ -97,7 +97,7 @@ get_safe_version() {
     local device="$1"
     
     case "$device" in
-        *17*Pro*Max*|*canoe*)
+        *17*Pro*Max*|*popsicle*)
             echo "OS3.0.290"
             ;;
         *14*Ultra*|*panther*)

@@ -65,11 +65,11 @@ create_rollback_database() {
     # Create rollback database for Xiaomi devices
     cat > "$db_file" << 'EOF'
 device,version,rollback_index,safe_for_downgrade,notes
-canoe,OS3.0.270,2,true,GBL present, safe downgrade
-canoe,OS3.0.280,3,true,GBL present, safe downgrade
-canoe,OS3.0.290,4,true,GBL present, safe downgrade
-canoe,OS3.0.300,5,false,GBL fixed, requires special handling
-canoe,OS3.0.306,5,false,GBL fixed, XBL downgrade works
+popsicle,OS3.0.270,2,true,GBL present, safe downgrade
+popsicle,OS3.0.280,3,true,GBL present, safe downgrade
+popsicle,OS3.0.290,4,true,GBL present, safe downgrade
+popsicle,OS3.0.300,5,false,GBL fixed, requires special handling
+popsicle,OS3.0.306,5,false,GBL fixed, XBL downgrade works
 EOF
 }
 
