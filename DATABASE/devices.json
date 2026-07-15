@@ -1,0 +1,132 @@
+{
+  "devices": {
+    "Xiaomi 17 Pro Max": {
+      "codename": "popsicle",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    },
+    "Xiaomi 14 Ultra": {
+      "codename": "panther",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    },
+    "Xiaomi 14 Pro": {
+      "codename": "cupidin",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    },
+    "Xiaomi 14": {
+      "codename": "cupidin",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    },
+    "Xiaomi 13T Pro": {
+      "codename": "peacock",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    },
+    "OnePlus 12": {
+      "codename": "potter",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    },
+    "OnePlus 11": {
+      "codename": "veux",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    },
+    "OnePlus 10T": {
+      "codename": "huangshan",
+      "soc": "sd8gen5",
+      "safe_abl_versions": ["OS3.0.270", "OS3.0.280", "OS3.0.290"],
+      "max_safe_version": "OS3.0.290",
+      "rollback_index": 4
+    }
+  },
+  "safe_versions": {
+    "popsicle": {
+      "recommended": "OS3.0.290",
+      "maximum": "OS3.0.306",
+      "warning": "OS3.0.300+ requires XBL downgrade via patched efisp"
+    },
+    "panther": {
+      "recommended": "OS3.0.290",
+      "maximum": "OS3.0.306",
+      "warning": "OS3.0.300+ requires XBL downgrade via patched efisp"
+    },
+    "cupidin": {
+      "recommended": "OS3.0.290",
+      "maximum": "OS3.0.306",
+      "warning": "OS3.0.300+ requires XBL downgrade via patched efisp"
+    },
+    "peacock": {
+      "recommended": "OS3.0.290",
+      "maximum": "OS3.0.306",
+      "warning": "OS3.0.300+ requires XBL downgrade via patched efisp"
+    },
+    "potter": {
+      "recommended": "OS3.0.290",
+      "maximum": "OS3.0.306",
+      "warning": "OS3.0.300+ requires XBL downgrade via patched efisp"
+    },
+    "veux": {
+      "recommended": "OS3.0.290",
+      "maximum": "OS3.0.306",
+      "warning": "OS3.0.300+ requires XBL downgrade via patched efisp"
+    },
+    "huangshan": {
+      "recommended": "OS3.0.290",
+      "maximum": "OS3.0.306",
+      "warning": "OS3.0.300+ requires XBL downgrade via patched efisp"
+    }
+  },
+  "rollback_index": {
+    "OS3.0.270": {
+      "index": 2,
+      "gbl_present": true,
+      "safe_for_downgrade": true
+    },
+    "OS3.0.280": {
+      "index": 3,
+      "gbl_present": true,
+      "safe_for_downgrade": true
+    },
+    "OS3.0.290": {
+      "index": 4,
+      "gbl_present": true,
+      "safe_for_downgrade": true
+    },
+    "OS3.0.300": {
+      "index": 5,
+      "gbl_present": false,
+      "safe_for_downgrade": false,
+      "notes": "GBL fixed, requires special XBL downgrade handling"
+    },
+    "OS3.0.306": {
+      "index": 5,
+      "gbl_present": false,
+      "safe_for_downgrade": false,
+      "notes": "GBL fixed, XBL downgrade still works"
+    }
+  },
+  "warnings": {
+    "GBL_fixed": "GBL exploit has been fixed in this version",
+    "XBL_required": "XBL downgrade is required for version >= 300",
+    "rollback_risky": "Rollback version too high, downgrade may brick device",
+    "ota_required": "OTA update required, auto-patch available after update"
+  }
+}

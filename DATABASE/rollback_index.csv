@@ -1,0 +1,36 @@
+device,version,rollback_index,safe_for_downgrade,notes,warning
+popsicle,OS3.0.270,2,true,GBL present, safe downgrade,none
+popsicle,OS3.0.280,3,true,GBL present, safe downgrade,none
+popsicle,OS3.0.290,4,true,GBL present, safe downgrade,none
+popsicle,OS3.0.300,5,false,GBL fixed, requires special handling,GBL_fixed
+popsicle,OS3.0.306,5,false,GBL fixed, XBL downgrade works,XBL_required
+panther,OS3.0.270,2,true,GBL present, safe downgrade,none
+panther,OS3.0.280,3,true,GBL present, safe downgrade,none
+panther,OS3.0.290,4,true,GBL present, safe downgrade,none
+panther,OS3.0.300,5,false,GBL fixed, requires special handling,GBL_fixed
+panther,OS3.0.306,5,false,GBL fixed, XBL downgrade works,XBL_required
+cupidin,OS3.0.270,2,true,GBL present, safe downgrade,none
+cupidin,OS3.0.280,3,true,GBL present, safe downgrade,none
+cupidin,OS3.0.290,4,true,GBL present, safe downgrade,none
+cupidin,OS3.0.300,5,false,GBL fixed, requires special handling,GBL_fixed
+cupidin,OS3.0.306,5,false,GBL fixed, XBL downgrade works,XBL_required
+peacock,OS3.0.270,2,true,GBL present, safe downgrade,none
+peacock,OS3.0.280,3,true,GBL present, safe downgrade,none
+peacock,OS3.0.290,4,true,GBL present, safe downgrade,none
+peacock,OS3.0.300,5,false,GBL fixed, requires special handling,GBL_fixed
+peacock,OS3.0.306,5,false,GBL fixed, XBL downgrade works,XBL_required
+potter,OS3.0.270,2,true,GBL present, safe downgrade,none
+potter,OS3.0.280,3,true,GBL present, safe downgrade,none
+potter,OS3.0.290,4,true,GBL present, safe downgrade,none
+potter,OS3.0.300,5,false,GBL fixed, requires special handling,GBL_fixed
+potter,OS3.0.306,5,false,GBL fixed, XBL downgrade works,XBL_required
+veux,OS3.0.270,2,true,GBL present, safe downgrade,none
+veux,OS3.0.280,3,true,GBL present, safe downgrade,none
+veux,OS3.0.290,4,true,GBL present, safe downgrade,none
+veux,OS3.0.300,5,false,GBL fixed, requires special handling,GBL_fixed
+veux,OS3.0.306,5,false,GBL fixed, XBL downgrade works,XBL_required
+huangshan,OS3.0.270,2,true,GBL present, safe downgrade,none
+huangshan,OS3.0.280,3,true,GBL present, safe downgrade,none
+huangshan,OS3.0.290,4,true,GBL present, safe downgrade,none
+huangshan,OS3.0.300,5,false,GBL fixed, requires special handling,GBL_fixed
+huangshan,OS3.0.306,5,false,GBL fixed, XBL downgrade works,XBL_required
