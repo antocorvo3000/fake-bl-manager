@@ -51,14 +51,16 @@ Fake BL Manager is a complete rework of the original concept designed to provide
 
 ## Supported Devices
 
-### Xiaomi
+### Snapdragon 8 Gen 5 / 8 Elite Gen 5
+All devices with Snapdragon 8 Gen 5 or 8 Elite Gen 5 are supported:
 - Xiaomi 14 Ultra / 14 Pro / 14 / 13T Pro
-
-### OnePlus
 - OnePlus 12 / 11 / 10T
+- And other devices using these chipsets
 
-### Other
-- Other Snapdragon 8 Gen 5 / 8 Elite Gen 5 devices
+### Requirements
+- Bootloader must be unlocked
+- Kernel must NOT have Baseband Guard
+- ABL version < OS3.0.300 (or use downgrade)
 
 ---
 
@@ -134,7 +136,7 @@ While Fake BL Manager includes multiple safety checks, there is always a risk of
 
 ## Credits
 
-- Author: Fake BL Manager Team
+- Author: antocorvo3000
 
 ---
 
