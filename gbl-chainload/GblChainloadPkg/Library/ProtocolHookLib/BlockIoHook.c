@@ -1,10 +1,19 @@
-/** @file BlockIoHook.c — verbose EFI_BLOCK_IO_PROTOCOL observation and reserve write swallow.
+/** @file BlockIoHook.c -- verbose EFI_BLOCK_IO_PROTOCOL observation and reserve
+  write swallow.
 
   Hooks partition BlockIo ReadBlocks/WriteBlocks slots so every mode can
-  preserve OPPO/OnePlus DeepTest state in `oplusreserve1` while still reporting
+  preserve OEM reserve-partition unlock token state while still reporting
   success to ABL callers.  The hook also emits compact verbose read/write
   telemetry for partition-level BlockIo traffic; this is intentionally general
   knowledge for later manual scope expansion.
+
+  Reserve partition detection covers:
+    - oplusreserve1 / opporeserve1  (OnePlus / Oppo / Realme)
+    - devinfo                        (Xiaomi)
+
+  On Xiaomi devices (popsicle, Snapdragon 8 Gen 5) the `devinfo` partition
+  (/dev/block/sda21, 8KB) is the equivalent reserve area carrying lock/unlock
+  persistence state.
 **/
 
 #include <Uefi.h>
