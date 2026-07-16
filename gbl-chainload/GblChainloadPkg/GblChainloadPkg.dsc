@@ -1,0 +1,284 @@
+## @file
+#  GblChainload platform description.
+#
+#  Library mappings mirror QcomModulePkg.dsc so we get the same dep graph as
+#  LinuxLoader.efi. Build-tuning flags (GBL_AUTO / GBL_DEBUG / GBL_VERBOSE)
+#  are passed via -D from scripts/build-inside-docker.sh. Activation of
+#  fakelock / profile-spoof is manifest-driven at runtime — there is no
+#  per-mode compile flag.
+##
+
+[Defines]
+  PLATFORM_NAME                  = GblChainloadPkg
+  PLATFORM_GUID                  = 750169b4-e72b-4ba8-97db-e0c6adc6355f
+  PLATFORM_VERSION               = 1.0
+  DSC_SPECIFICATION              = 0x00010005
+  OUTPUT_DIRECTORY               = Build/GblChainloadPkg
+  SUPPORTED_ARCHITECTURES        = AARCH64
+  BUILD_TARGETS                  = RELEASE
+  SKUID_IDENTIFIER               = DEFAULT
+
+  # Canoe board defaults — mirror gbl_root_canoe build_hooks_generic target.
+  DEFINE BOARD_BOOTLOADER_PRODUCT_NAME    = canoe
+  DEFINE VERIFIED_BOOT_ENABLED            = 1
+  DEFINE VERIFIED_BOOT_LE                 = 0
+  DEFINE AB_RETRYCOUNT_DISABLE            = 0
+  DEFINE TARGET_BOARD_TYPE_AUTO           = 0
+  DEFINE BUILD_USES_RECOVERY_AS_BOOT      = 0
+  DEFINE DISABLE_PARALLEL_DOWNLOAD_FLASH  = 0
+  DEFINE REMOVE_CARVEOUT_REGION           = 1
+  DEFINE QSPA_BOOTCONFIG_ENABLE           = 1
+  DEFINE USER_BUILD_VARIANT               = 0
+  DEFINE AUTO_VIRT_ABL                    = 0
+  DEFINE AUTO_LVGVM_ABL                   = 0
+  DEFINE WEAR_OS                          = 0
+  DEFINE ENABLE_LE_VARIANT                = 0
+  DEFINE ENABLE_LV_ATOMIC_AB              = 0
+  DEFINE ROOT_PARTLABEL_SUPPORT           = 0
+  DEFINE SUPPORT_AB_BOOT_LXC              = 0
+  DEFINE EARLY_ETH_ENABLED                = 0
+  DEFINE EARLY_ETH_AS_DLKM               = 0
+  DEFINE BOOTIMAGE_LOAD_VERIFY_IN_PARALLEL = 0
+  DEFINE VERITY_LE                        = 0
+  DEFINE HIBERNATION_SUPPORT_NO_AES       = 0
+  DEFINE HIBERNATION_SUPPORT_AES          = 0
+  DEFINE HIBERNATION_TZ_ENCRYPTION        = 0
+  DEFINE HIBERNATION_SWAP_PARTITION_NAME  = 0
+  DEFINE DISABLE_DTBO_PARTITION           = 0
+  DEFINE APPEND_RAM_PARTITIONS_TO_MEM_NODE = 0
+  DEFINE DDR_SUPPORTS_SCT_CONFIG          = 0
+  DEFINE NAND_SQUASHFS_SUPPORT            = 0
+  DEFINE NAND_UBI_VOLUME_FLASHING_ENABLED = 0
+  DEFINE USE_DUMMY_BCC                    = 0
+  DEFINE BASE_ADDRESS                     = 0
+  DEFINE TARGET_LINUX_BOOT_CPU_ID         = 0
+  DEFINE ENABLE_EARLY_SERVICES            = 0
+  DEFINE KERNEL_LOAD_ADDRESS              = 0
+  DEFINE KERNEL_SIZE_RESERVED             = 0
+  DEFINE DISABLE_KERNEL_PROTOCOL          = 0
+  DEFINE TARGET_SUPPORTS_EARLY_USB_INIT   = 0
+  # BootLib's UpdateCmdLine.c hard-references INIT_BIN; value is cosmetic.
+  DEFINE INIT_BIN                         = /init
+
+  # Build-tuning flags — overridden at build time via -D from
+  # build-inside-docker.sh. Activation of fakelock / profile-spoof is NOT
+  # here; it is decided at runtime from the GBLP1 manifest baked into the
+  # EFISP overlay.
+  DEFINE GBL_AUTO                         = 0
+  DEFINE GBL_DEBUG                        = 0
+  DEFINE GBL_VERBOSE                      = 0
+
+  # Build name — single string identifier substituted into log banner,
+  # FastbootMenu display, and the gbl-chainload_build getvar.
+  # build-inside-docker.sh constructs the suffixed form
+  # (e.g. gbl-chainload-auto-debug-verbose).
+  DEFINE GBL_BUILD_NAME                   = gbl-chainload
+
+################################################################################
+# Library mappings — mirrors QcomModulePkg.dsc [LibraryClasses.*]
+################################################################################
+[LibraryClasses.common]
+  BaseStackCheckLib|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
+  DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
+  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+  BaseLib|MdePkg/Library/BaseLib/BaseLib.inf
+  BaseMemoryLib|MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf
+  PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
+  CacheMaintenanceLib|ArmPkg/Library/ArmCacheMaintenanceLib/ArmCacheMaintenanceLib.inf
+  IoLib|MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
+  UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
+  UefiRuntimeServicesTableLib|MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
+  DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
+  UefiBootServicesTableLib|MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf
+  DxeServicesTableLib|MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf
+  UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
+  PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
+  FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
+  LibUfdt|EmbeddedPkg/Library/LibUfdt/LibUfdt.inf
+  TimerLib|ArmPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
+  ArmGenericTimerCounterLib|ArmPkg/Library/ArmGenericTimerPhyCounterLib/ArmGenericTimerPhyCounterLib.inf
+  Zlib|QcomModulePkg/Library/zlib/zlib.inf
+  BaseMemoryLibOptDxe|MdePkg/Library/BaseMemoryLibOptDxe/BaseMemoryLibOptDxe.inf
+  ## Route DEBUG() through ReportStatusCode — the same mechanism the
+  ## patched ABL uses (QcomModulePkg.dsc maps DebugLib to this lib when
+  ## AUTO_VIRT_ABL=0). The QCOM BSP installs a system-wide status-code
+  ## handler at XBL → EL1 transition that routes the formatted strings
+  ## to the UART log buffer (UefiInfoBlk->UartLogBufferPtr → \UefiLog<N>.txt
+  ## at BDS flush). The handler doesn't touch ConOut, so DEBUG output is
+  ## silent on the framebuffer console — matching ABL's behavior exactly.
+  ##
+  ## Prior failed attempts:
+  ##   - UefiDebugLibConOut: routed via gST->ConOut → splitter →
+  ##     framebuffer + UART. Hook content reached UefiLog but was also
+  ##     visible on screen (prod-noisy).
+  ##   - QcomModulePkg/Library/DebugLib: tries LocateProtocol(SerialIo)
+  ##     which returns NOT_FOUND on canoe at our stage. DEBUG dropped
+  ##     entirely → prod UefiLog empty.
+  ##
+  ## ReportStatusCodeLib (already mapped below) provides the
+  ## ReportStatusCode entry point this DebugLib calls into.
+  DebugLib|MdeModulePkg/Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
+  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
+  DebugPrintErrorLevelLib|MdeModulePkg/Library/DxeDebugPrintErrorLevelLib/DxeDebugPrintErrorLevelLib.inf
+  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
+  PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
+  AvbLib|QcomModulePkg/Library/avb/AvbLib.inf
+  AesLib|QcomModulePkg/Library/aes/AesLib.inf
+  Lz4Lib|QcomModulePkg/Library/lz4/lib/Lz4Lib.inf
+  ## Used by AblUnwrapLib to decompress LZMA-wrapped FFS sections in canoe ABL.
+  LzmaDecompressLib|MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf
+  ## Our libraries.
+  AblUnwrapLib|GblChainloadPkg/Library/AblUnwrapLib/AblUnwrapLib.inf
+  LogFsLib|GblChainloadPkg/Library/LogFsLib/LogFsLib.inf
+  DynamicPatchLib|GblChainloadPkg/Library/DynamicPatchLib/DynamicPatchLib.inf
+  ProtocolHookLib|GblChainloadPkg/Library/ProtocolHookLib/ProtocolHookLib.inf
+  AvbParseLib|GblChainloadPkg/Library/AvbParseLib/AvbParseLib.inf
+  GblPayloadLib|GblChainloadPkg/Library/GblPayloadLib/GblPayloadLib.inf
+
+[LibraryClasses.AARCH64]
+  ArmLib|ArmPkg/Library/ArmLib/ArmBaseLib.inf
+  NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
+  OpenDice|QcomModulePkg/Library/OpenDice/open-dice.inf
+  CompilerIntrinsicsLib|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
+
+[LibraryClasses.common.UEFI_APPLICATION]
+  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
+  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
+
+################################################################################
+# Build options — mirrors QcomModulePkg.dsc [BuildOptions.common]
+################################################################################
+[BuildOptions.common]
+  GCC:*_*_*_ARCHCC_FLAGS  = -Wno-shift-negative-value -fstack-protector-all -Wno-varargs -fno-common -Wno-misleading-indentation -Wno-unknown-warning-option
+  GCC:*_*_*_DLINK_FLAGS = -Wl,-Ttext=0x0
+  # PR2 Task 4: link crates/gblp1's aarch64-unknown-uefi staticlib (built
+  # ahead of the EDK2 build by scripts/build-inside-docker.sh). This
+  # supplies gbl_payload_*, gbl_sha256*, and gbl_crc32 — the parser +
+  # hash + CRC API formerly hosted in GblPayloadLib's deleted C sources.
+  #
+  # DLINK2_FLAGS appears AFTER the --start-group/--end-group block in
+  # the GccBase link rule. We need the staticlib placed after that
+  # block so the linker has already collected the GBL_PAYLOAD_*
+  # references from GblPayload.c when it scans libgblp1.a. Putting
+  # this in DLINK_FLAGS (prepended) leaves the references unresolved
+  # because GblPayload.c hasn't been linked yet at that point.
+  #
+  # The target triple is `aarch64-unknown-none` (bare-metal ELF) — not
+  # `aarch64-unknown-uefi` — because EDK2's GCC build path links via
+  # aarch64-linux-gnu-ld (GNU ld), which only reads ELF. The UEFI
+  # target emits COFF/PE objects, which ld rejects with "file format
+  # not recognized". The crate's `#[panic_handler]` is gated on
+  # `target_os = "uefi"`, which `unknown-none` is NOT — but EDK2's
+  # build options include `-fno-builtin -fno-unwind-tables`, panics
+  # never get linked, and the unwind tables stay out of the final
+  # image anyway.
+  # PR2 Task 5: --allow-multiple-definition lets the two Rust staticlibs
+  # (libgblp1.a + libmode2_profile_core.a) coexist at link time even
+  # though both define `rust_begin_unwind` (rustc lowers every
+  # `#[panic_handler]` to that strong symbol; we have one per no_std
+  # staticlib). Both panic handlers are identical `loop {}` bodies so
+  # the choice is irrelevant; the linker keeps the first.
+  GCC:*_*_AARCH64_DLINK_FLAGS = -Wl,--allow-multiple-definition
+  GCC:*_*_AARCH64_DLINK2_FLAGS = $(WORKSPACE)/target/aarch64-unknown-none/release/libgblp1.a
+  # PR2 Task 5: libmode2_profile_core.a supplies gbl_mode2_profile_parse()
+  # (the Rust port of the deleted Mode2Profile.c). Built with
+  # --no-default-features so the host-only `compile` + `derive` paths
+  # and their `toml` / `serde` dependencies are excluded from the
+  # firmware staticlib.
+  GCC:*_*_AARCH64_DLINK2_FLAGS = $(WORKSPACE)/target/aarch64-unknown-none/release/libmode2_profile_core.a
+  # PR2 Task 6: libpatch_engine.a supplies DynamicPatch_Apply() +
+  # DynamicPatchLib_EnsureInit() (the Rust port of the deleted
+  # DynamicPatchLib C sources). Built with --no-default-features so the
+  # host-only `oem` + `retired` modules are excluded from the firmware
+  # staticlib — only `abl_permissive` (patch6 + patch10) ships in the
+  # device EFI.
+  GCC:*_*_AARCH64_DLINK2_FLAGS = $(WORKSPACE)/target/aarch64-unknown-none/release/libpatch_engine.a
+  # PR2 Task 7: libavb_parse.a supplies every AvbParse_* entry point
+  # the firmware + host tools call into (the Rust port of the deleted
+  # AvbParse.c + Internal/AvbBigEndian.h). Built with
+  # --no-default-features so the no_std panic_handler is wired in;
+  # the EDK2 link line's --allow-multiple-definition already lets it
+  # coexist with the other staticlibs' identical `loop {}` bodies.
+  GCC:*_*_AARCH64_DLINK2_FLAGS = $(WORKSPACE)/target/aarch64-unknown-none/release/libavb_parse.a
+  GCC:*_*_*_CC_FLAGS = -DZ_SOLO
+  GCC:*_*_*_CC_FLAGS = -DPRODUCT_NAME=\"$(BOARD_BOOTLOADER_PRODUCT_NAME)\"
+  GCC:*_*_*_CC_FLAGS = -DGBL_CHAINLOAD_VERSION=\"$(GBL_CHAINLOAD_VERSION)\"
+
+  # Build-tuning flags — manifest-driven activation handles per-profile
+  # behavior at runtime, so no compile-time mode flag here.
+  GCC:*_*_*_CC_FLAGS = -DGBL_AUTO=$(GBL_AUTO)
+  GCC:*_*_*_CC_FLAGS = -DGBL_DEBUG=$(GBL_DEBUG)
+  GCC:*_*_*_CC_FLAGS = -DGBL_VERBOSE=$(GBL_VERBOSE)
+  GCC:*_*_*_CC_FLAGS = -DGBL_BUILD_NAME=\"$(GBL_BUILD_NAME)\"
+
+  # Workarounds for this Qualcomm edk2 fork against modern Ubuntu GCC:
+  #  - __FORTIFY_SOURCE: BaseLib.h:148 macro space-bug workaround
+  #  - -fno-stack-protector: Ubuntu gcc default-on stack-protector breaks -nostdlib
+  # Force DWARF4: Ubuntu 22.04 binutils-aarch64-linux-gnu (ld 2.38) does not
+  # understand DWARF5 FORM 0x23. Clang 14 on this image defaults to DWARF5.
+  GCC:*_*_AARCH64_CC_FLAGS = -gdwarf-4 -D__FORTIFY_SOURCE -fno-stack-protector -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-error=unused-function -Wno-error=array-parameter -DGBL_EXPERIMENTAL_FASTBOOT_CMDS=1
+
+  !if $(VERIFIED_BOOT_LE)
+      GCC:*_*_*_CC_FLAGS = -DVERIFIED_BOOT_LE
+  !endif
+  !if $(VERIFIED_BOOT_ENABLED)
+      GCC:*_*_*_CC_FLAGS = -DVERIFIED_BOOT_ENABLED
+  !endif
+  !if $(USER_BUILD_VARIANT) == 0
+      GCC:*_*_*_CC_FLAGS = -DENABLE_UPDATE_PARTITIONS_CMDS -DENABLE_BOOT_CMD -DENABLE_DEVICE_CRITICAL_LOCK_UNLOCK_CMDS
+  !else
+      GCC:*_*_*_CC_FLAGS = -DUSER_BUILD_VARIANT
+  !endif
+  !if $(REMOVE_CARVEOUT_REGION) == 1
+      GCC:*_*_*_CC_FLAGS = -DREMOVE_CARVEOUT_REGION
+  !endif
+  !if $(QSPA_BOOTCONFIG_ENABLE) == 1
+      GCC:*_*_*_CC_FLAGS = -DQSPA_BOOTCONFIG_ENABLE
+  !endif
+  # BootLib hard-references INIT_BIN; pass it through always.
+  GCC:*_*_*_CC_FLAGS = -DINIT_BIN='"$(INIT_BIN)"'
+
+################################################################################
+# PCDs
+################################################################################
+[PcdsFixedAtBuild.common]
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x2f
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000042
+  gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x06
+
+################################################################################
+# Components
+################################################################################
+[Components.common]
+  GblChainloadPkg/Application/GblChainload/GblChainload.inf {
+    <LibraryClasses>
+      DxeServicesTableLib|MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf
+      UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
+      UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
+      CacheMaintenanceLib|ArmPkg/Library/ArmCacheMaintenanceLib/ArmCacheMaintenanceLib.inf
+      Zlib|QcomModulePkg/Library/zlib/zlib.inf
+      ArmLib|ArmPkg/Library/ArmLib/ArmBaseLib.inf
+      BaseLib|MdePkg/Library/BaseLib/BaseLib.inf
+      DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
+      HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
+      PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
+      DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
+      FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
+      LibUfdt|EmbeddedPkg/Library/LibUfdt/LibUfdt.inf
+      ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
+      BootLib|QcomModulePkg/Library/BootLib/BootLib.inf
+      StackCanary|QcomModulePkg/Library/StackCanary/StackCanary.inf
+      FastbootLib|QcomModulePkg/Library/FastbootLib/FastbootLib.inf
+      AvbLib|QcomModulePkg/Library/avb/AvbLib.inf
+      OpenDice|QcomModulePkg/Library/OpenDice/open-dice.inf
+      AesLib|QcomModulePkg/Library/aes/AesLib.inf
+      UbsanLib|QcomModulePkg/Library/UbsanLib/UbsanLib.inf
+      Lz4Lib|QcomModulePkg/Library/lz4/lib/Lz4Lib.inf
+      LoadFVLib|QcomModulePkg/Library/LoadFVLib/LoadFVLib.inf
+      LogFsLib|GblChainloadPkg/Library/LogFsLib/LogFsLib.inf
+      AblUnwrapLib|GblChainloadPkg/Library/AblUnwrapLib/AblUnwrapLib.inf
+      DynamicPatchLib|GblChainloadPkg/Library/DynamicPatchLib/DynamicPatchLib.inf
+      ProtocolHookLib|GblChainloadPkg/Library/ProtocolHookLib/ProtocolHookLib.inf
+      GblPayloadLib|GblChainloadPkg/Library/GblPayloadLib/GblPayloadLib.inf
+  }

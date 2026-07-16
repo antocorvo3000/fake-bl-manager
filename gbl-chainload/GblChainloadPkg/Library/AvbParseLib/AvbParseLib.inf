@@ -1,0 +1,32 @@
+## @file AvbParseLib.inf
+#  Library-class shim for the AVB structure parser. The actual parser
+#  lives in the crates/avb-parse Rust staticlib — this .inf exists only
+#  so EDK2's library-class resolution graph is satisfied for consumers
+#  that still declare an `AvbParseLib` dep
+#  (edk2/QcomModulePkg/Library/FastbootLib via FastbootCmds.c).
+#
+#  PR2 Task 7 inverted the dependency: AvbParse.c +
+#  Internal/AvbBigEndian.h moved into Rust. The firmware EDK2 build
+#  picks up libavb_parse.a via DLINK2_FLAGS in GblChainloadPkg.dsc;
+#  this .inf compiles a single empty placeholder so the EDK2 build
+#  system has a translation unit to attach the library class to.
+##
+
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = AvbParseLib
+  FILE_GUID      = 8a3c9c54-f8c4-47a0-9f6e-00293b61b396
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 1.1
+  LIBRARY_CLASS  = AvbParseLib
+
+[Sources]
+  AvbParseLib_RustShim.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  GblChainloadPkg/GblChainloadPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib

@@ -104,10 +104,21 @@ To use this project, you need to:
 
 **Next steps before release:**
 - [ ] Build TWRP installer ZIP
-- [ ] Build Magisk module ZIP  
+- [ ] Build Magisk module ZIP
 - [ ] Build PC tool binaries
 - [ ] Add complete documentation
 - [ ] Testing on physical devices
+
+---
+
+## GBL-Chainload Port (Experimental)
+
+This project includes a port of [`gbl-chainload`](https://github.com/1vivy/gbl-chainload) for Xiaomi devices.
+
+While standard Fake BL Manager patches ABL/EFISP for boot and Superfastboot, **GBL-Chainload (Mode-1)** uses
+protocol hooks to intercept boot state queries and reports `locked/green` to the Kernel and TrustZone.
+
+This is required to pass Play Integrity and fully hide unlock state from the OS. **WIP: Porting to popsicle.**
 
 ---
 
@@ -144,13 +155,5 @@ While Fake BL Manager includes multiple safety checks, there is always a risk of
 ## License
 
 This project uses the GPL v3 license. See [LICENSE](LICENSE) for details.
-
----
-
-## Disclaimer
-
-**This project is currently under development and not ready for production use.**
-
-Use at your own risk. The installation process may brick your device if not done correctly.
 
 ---

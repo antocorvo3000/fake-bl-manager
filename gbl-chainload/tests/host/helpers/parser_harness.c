@@ -1,0 +1,99 @@
+/* tests/host/helpers/parser_harness.c
+   Single host harness that exercises GblPayloadLib's pure-logic parser
+   against in-memory bytes. Used by tests 060/061/063/064/067/077. */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+/* PR2 Task 4: GBLP1 parser now ships in libgblp1.a (crates/gblp1). */
+#include "../../../crates/gblp1/include/gblp1_ffi.h"
+
+static int load_file(const char *path, uint8_t **out_buf, size_t *out_n) {
+    FILE *f = fopen(path, "rb");
+    if (!f) { perror("fopen"); return -1; }
+    fseek(f, 0, SEEK_END);
+    long sz = ftell(f);
+    if (sz < 0) { fclose(f); return -1; }
+    fseek(f, 0, SEEK_SET);
+    size_t n = (size_t)sz;
+    uint8_t *buf = malloc(n);
+    if (!buf) { fclose(f); return -1; }
+    if (fread(buf, 1, n, f) != n) { free(buf); fclose(f); return -1; }
+    fclose(f);
+    *out_buf = buf;
+    *out_n   = n;
+    return 0;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 3) {
+        fprintf(stderr,
+                "usage: parser_harness parse-header <file>\n"
+                "       parser_harness find-cached-abl <file>\n"
+                "       parser_harness find-mode2-profile <file>\n"
+                "       parser_harness find-manifest <file>\n"
+                "       parser_harness scan-cached-abl <file>\n");
+        return 2;
+    }
+
+    uint8_t *buf = NULL;
+    size_t n = 0;
+    if (load_file(argv[2], &buf, &n) != 0) return 2;
+
+    if (strcmp(argv[1], "parse-header") == 0) {
+        enum gbl_payload_status s = gbl_payload_validate_header(buf, n);
+        printf("status=%d\n", s);
+        free(buf);
+        return s == GBL_PAYLOAD_OK ? 0 : 1;
+    }
+
+    if (strcmp(argv[1], "find-cached-abl") == 0) {
+        const uint8_t *pe; size_t pe_size;
+        enum gbl_payload_status s =
+            gbl_payload_find_cached_abl(buf, n, &pe, &pe_size);
+        printf("status=%d size=%zu\n", s, s == GBL_PAYLOAD_OK ? pe_size : 0);
+        free(buf);
+        return s == GBL_PAYLOAD_OK ? 0 : 1;
+    }
+
+    if (strcmp(argv[1], "find-mode2-profile") == 0) {
+        const uint8_t *profile; size_t profile_size;
+        enum gbl_payload_status s =
+            gbl_payload_find_mode2_profile(buf, n, &profile, &profile_size);
+        printf("status=%d", s);
+        if (s == GBL_PAYLOAD_OK) printf(" size=%zu", profile_size);
+        printf("\n");
+        free(buf);
+        return s == GBL_PAYLOAD_OK ? 0 : 1;
+    }
+
+    if (strcmp(argv[1], "find-manifest") == 0) {
+        struct gbl_manifest m = {0};
+        int present = -1;
+        enum gbl_payload_status s =
+            gbl_payload_find_manifest(buf, n, &m, &present);
+        printf("status=%d present=%d bits=0x%04x\n",
+               s, present, (unsigned)m.cap_bits);
+        free(buf);
+        return s == GBL_PAYLOAD_OK ? 0 : 1;
+    }
+
+    if (strcmp(argv[1], "scan-cached-abl") == 0) {
+        const uint8_t *pe; size_t pe_size;
+        enum gbl_payload_status s =
+            gbl_payload_scan_cached_abl(buf, n, &pe, &pe_size);
+        printf("status=%d size=%zu\n", s, s == GBL_PAYLOAD_OK ? pe_size : 0);
+        free(buf);
+        return s == GBL_PAYLOAD_OK ? 0 : 1;
+    }
+
+    fprintf(stderr,
+            "unknown subcommand '%s'\n"
+            "usage: parser_harness parse-header <file>\n"
+            "       parser_harness find-cached-abl <file>\n"
+            "       parser_harness find-mode2-profile <file>\n"
+            "       parser_harness find-manifest <file>\n"
+            "       parser_harness scan-cached-abl <file>\n",
+            argv[1]);
+    free(buf);
+    return 2;
+}
