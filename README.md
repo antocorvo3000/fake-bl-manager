@@ -120,6 +120,21 @@ protocol hooks to intercept boot state queries and reports `locked/green` to the
 
 This is required to pass Play Integrity and fully hide unlock state from the OS. **WIP: Porting to popsicle.**
 
+### Xiaomi Popsicle Port Status
+
+| Component | Status | File |
+|---|---|---|
+| GBL exploit confirmed | ✅ | `patch_abl` passes 5/5 patches |
+| ABL string anchors | ✅ | `patch6/7` compatible strings found |
+| TrustZone TA identified | ✅ | `mitrustedui` (not OplusSec GUID) |
+| Reserve partition mapped | ✅ | `devinfo` (8KB, equiv. `oplusreserve1`) |
+| XiaomiHook.c (QSEECOM hooks) | ✅ | Hooks `mitrustedui` TA StartApp/SendCmd |
+| XiaomiOverlay.c (fakelock) | ✅ | Clears `is_unlocked` / `is_unlock_critical` |
+| OEM enum + build integration | ✅ | `GBL_OEM_XIAOMI = 2` added to manifest |
+| BlockIoHook.c (devinfo) | ✅ | `devinfo` partition added to reserve detection |
+| Ground-truth cmd-ids | ❌ TBD | Requires `--verbose` capture on stock locked device |
+| DeviceInfo offsets | ❌ TBD | May differ from standard Qualcomm layout |
+
 ---
 
 ## Documentation
