@@ -1,0 +1,48 @@
+name: Build gbl-chainload
+
+on:
+  push:
+    paths:
+      - 'gbl-chainload/**'
+  pull_request:
+    paths:
+      - 'gbl-chainload/**'
+  workflow_dispatch:
+
+jobs:
+  build-gbl-chainload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build gbl-chainload firmware
+        working-directory: ./gbl-chainload
+        run: |
+          docker build -t gbl-chainload-build:latest -f docker/Dockerfile .
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            -e GBL_AUTO=0 \
+            -e GBL_DEBUG=0 \
+            -e GBL_VERBOSE=1 \
+            -e GBL_BUILD_NAME=gbl-chainload-verbose \
+            -e GBL_CHAINLOAD_VERSION=$(head -n1 VERSION | tr -d '[:space:]') \
+            gbl-chainload-build:latest \
+            bash scripts/build-inside-docker.sh
+
+      - name: Copy artifact to predictable path
+        working-directory: ./gbl-chainload
+        run: |
+          mkdir -p upload
+          cp dist/gbl-chainload-verbose.efi upload/gbl-chainload-popsicle-verbose.efi || \
+            cp Build/GblChainloadPkg/RELEASE_*/AARCH64/GblChainload.efi upload/gbl-chainload-popsicle-verbose.efi
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbl-chainload-popsicle-verbose
+          path: gbl-chainload/upload/gbl-chainload-popsicle-verbose.efi
