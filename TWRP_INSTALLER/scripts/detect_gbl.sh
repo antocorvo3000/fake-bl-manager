@@ -27,17 +27,32 @@ check_gbl_vulnerability() {
     
     # Patch and check for GBL error
     patch_abl "$runtime_dir/LinuxLoader.efi" "$runtime_dir/patched.efi" >> "$runtime_dir/patch.log" 2>&1
-    
+
     if [ ! -f "$runtime_dir/patched.efi" ]; then
         return 3
     fi
-    
+
     # Check if patch was successful
+    if grep -q "Sink patched successfully" "$runtime_dir/patch.log"; then
+        echo "FOUND"
+        return 0
+    fi
+    
+    # If no success message, check for errors
+    if grep -q "Warning: sink STRB not found" "$runtime_dir/patch.log"; then
+        return 4
+    fi
+    
     if grep -q "Warning: Failed to patch ABL GBL" "$runtime_dir/patch.log"; then
         return 4
     fi
     
-    echo "FOUND"
+    if grep -q "Warning: sink STRB tracking incomplete" "$runtime_dir/patch.log"; then
+        return 4
+    fi
+    
+    # If we got here, something unexpected happened
+    echo "FOUND_WITH_WARNINGS"
     return 0
 }
 
