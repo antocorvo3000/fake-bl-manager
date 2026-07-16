@@ -22,8 +22,10 @@
 #include <Library/GblPayloadLib.h>
 
 #include <Library/ProtocolHookLib.h>
+#include <Library/DeviceInfo.h>
 
 #include "HookCommon.h"
+#include "XiaomiOverlay.h"
 
 EFI_STATUS
 EFIAPI
@@ -112,6 +114,41 @@ ProtocolHook_InstallAll (
   }
   Result->BlockIoInstalledSlots = 1;
   Result->BlockIoExpectedSlots  = 1;
+
+  /* 6. Xiaomi (popsicle) -- capability-gated hooks for Xiaomi devices.
+        Detects Xiaomi by checking for mitrustedui service or popsicle
+        ro.product.name. Installs Xiaomi-specific overlays on top of
+        standard baseline hooks. Activated when fakelock or profile-spoof
+        caps are set AND device is detected as Xiaomi. */
+  {
+    BOOLEAN IsXiaomi = FALSE;
+
+    /* Check ro.product.name via HII / or check for mitrustedui service.
+     * In EDK2 environment, we probe via gBS->LocateProtocol for Xiaomi-
+     * specific indicators, or use device tree compatible string.
+     * For now, we rely on gManifest.Oem discriminant set at build time. */
+    if (gManifest.Oem == GBL_OEM_XIAOMI) {
+      IsXiaomi = TRUE;
+    }
+
+    if (IsXiaomi && (gManifest.WantFakelockHook || gManifest.WantProfileSpoof)) {
+      Status = InstallXiaomiHook ();
+      if (EFI_ERROR (Status)) {
+        if (gManifest.WantFakelockHook) {
+          Print (L"ProtocolHookLib: FATAL — XiaomiHook install failed (%r), aborting chain-load\n",
+                 Status);
+          return Status;
+        }
+        Print (L"ProtocolHookLib: XiaomiHook install failed (%r) - continuing (observation-only)\n",
+               Status);
+      } else {
+        Result->XiaomiInstalledSlots = 1;
+        /* Initialize Xiaomi-specific protocol hooks */
+        XiaomiInitProtocolHooks ();
+      }
+    }
+    Result->XiaomiExpectedSlots = IsXiaomi ? 1 : 0;
+  }
 
   /* Aggregate -- all required hooks must be installed. */
   Result->UniversalRequiredOk =

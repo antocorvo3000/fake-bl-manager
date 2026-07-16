@@ -26,6 +26,7 @@ EFI_STATUS InstallVerifiedBootHook (VOID);
 EFI_STATUS InstallSpssHook (VOID);
 EFI_STATUS InstallBlockIoHook (VOID);
 EFI_STATUS InstallEbsHook (VOID);
+EFI_STATUS InstallXiaomiHook (VOID);
 
 /* ------------------------------------------------------------------
  * Reentry guard

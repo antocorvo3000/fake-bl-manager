@@ -27,6 +27,9 @@
   ScmHook.c
   SpssHook.c
   BlockIoHook.c
+  # Xiaomi (popsicle) overlays — same runtime-gated pattern.
+  XiaomiHook.c
+  XiaomiOverlay.c
 
 [Packages]
   MdePkg/MdePkg.dec

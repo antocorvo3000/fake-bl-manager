@@ -25,10 +25,15 @@ GblPayload_LoadMode2Profile (IN  EFI_HANDLE                ImageHandle,
 
 /* Engine capability manifest, firmware-facing form. The wire-level
    cap_bits field is translated into named booleans here so call sites
-   read as `if (gManifest.WantFakelockHook)` instead of bit math. */
+   read as `if (gManifest.WantFakelockHook)` instead of bit math.
+   Discriminants match `enum GBL_OEM` from the patch-engine FFI:
+     0 = NONE, 1 = OPLUS, 2 = XIAOMI */
+typedef enum { GBL_OEM_NONE = 0, GBL_OEM_OPLUS = 1, GBL_OEM_XIAOMI = 2 } GBL_OEM;
+
 struct GblManifest {
   BOOLEAN WantFakelockHook;
   BOOLEAN WantProfileSpoof;
+  GBL_OEM Oem;                     /* OEM family (determines which overlays to install) */
 };
 
 /* Single firmware-wide manifest instance. Owned by GblPayloadLib;
