@@ -25,13 +25,16 @@
  * Xiaomi does not have OplusSec (GUID E11DDA6A-...), so its persistence
  * mechanism differs. The mitrustedui TA handles UI-level security state
  * but may also persist lock-state metadata to RPMB. Until ground-truth
- * from a stock-locked capture clarifies the exact cmd space, we only
- * drop writes to device-state that could re-lock persistence.
+ * from a stock-locked capture clarifies the exact cmd space, this list
+ * is empty and every mitrustedui command is logged for analysis.
  *
- * TODO: confirm Xiaomi cmd-ids from --verbose captures on a stock
- * locked popsicle device, then replace 0xFF sentinel with actual values.
+ * After capturing a verbose boot log from a locked stock device, add the
+ * cmd-ids that write persistence/lock-state here.
  */
-#define XIAOMI_CMD_PERSISTENT_WRITE  0xFFU   /* TBD — placeholder sentinel */
+STATIC CONST UINT32 mXiaomiMitruDropCmds[] = {
+  /* TBD — populate from stock-locked verbose capture */
+};
+#define XIAOMI_MITRU_DROP_COUNT  (sizeof (mXiaomiMitruDropCmds) / sizeof (mXiaomiMitruDropCmds[0]))
 
 BOOLEAN
 XiaomiOverlay_ShouldDropQseeMiTrustedUi (
@@ -39,15 +42,16 @@ XiaomiOverlay_ShouldDropQseeMiTrustedUi (
   OUT EFI_STATUS  *FakeStatus
   )
 {
-  /* Placeholder: until ground-truth cmd-ids are confirmed from --verbose
-   * captures on stock locked device, do not drop any mitrustedui commands
-   * — the sentinel 0xFF will never match real cmd ids. */
-  if (CmdId == XIAOMI_CMD_PERSISTENT_WRITE) {
-    *FakeStatus = EFI_SUCCESS;
-    GBL_INFO ("xmi-mitru | cmd=0x%02x(persistent_write) | DROPPED (mode-1)\n",
-              CmdId);
-    return TRUE;
+  UINTN i;
+
+  for (i = 0; i < XIAOMI_MITRU_DROP_COUNT; i++) {
+    if (CmdId == mXiaomiMitruDropCmds[i]) {
+      *FakeStatus = EFI_SUCCESS;
+      GBL_INFO ("xmi-mitru | cmd=0x%02x | DROPPED (mode-1)\n", CmdId);
+      return TRUE;
+    }
   }
+
   return FALSE;
 }
 

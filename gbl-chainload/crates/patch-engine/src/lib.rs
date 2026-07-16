@@ -59,6 +59,7 @@ pub mod ffi;
 pub enum Oem {
     None = 0,
     Oplus = 1,
+    Xiaomi = 2,
 }
 
 /// Patch scope — which group a [`PatchDesc`] belongs to.
@@ -71,6 +72,7 @@ pub enum PatchScope {
     Universal = 0,
     OemOplus = 1,
     AblPermissive = 2,
+    OemXiaomi = 3,
 }
 
 /// Per-patch outcome.
@@ -183,6 +185,9 @@ impl Engine {
         if oem == Oem::Oplus {
             v.extend_from_slice(oem::oplus::OEM_OPLUS_PATCHES);
         }
+        if oem == Oem::Xiaomi {
+            v.extend_from_slice(oem::xiaomi::OEM_XIAOMI_PATCHES);
+        }
         if include_abl_permissive {
             v.extend_from_slice(abl_permissive::ABL_PERMISSIVE_PATCHES);
         }
@@ -254,6 +259,7 @@ impl Engine {
             PatchScope::Universal => "universal",
             PatchScope::OemOplus => "oem-oplus",
             PatchScope::AblPermissive => "abl-permissive",
+            PatchScope::OemXiaomi => "oem-xiaomi",
         };
         let mandatory_str = if p.mandatory { "mandatory" } else { "optional" };
         eprintln!(
@@ -280,6 +286,7 @@ mod tests {
         assert_eq!(PatchScope::Universal as u32, 0);
         assert_eq!(PatchScope::OemOplus as u32, 1);
         assert_eq!(PatchScope::AblPermissive as u32, 2);
+        assert_eq!(PatchScope::OemXiaomi as u32, 3);
         // Mirror of `enum PATCH_OUTCOME`.
         assert_eq!(PatchOutcome::Ok as u32, 0);
         assert_eq!(PatchOutcome::Miss as u32, 1);
@@ -291,6 +298,7 @@ mod tests {
         // Mirror of `enum GBL_OEM` from the deleted PatchScope.h.
         assert_eq!(Oem::None as u32, 0);
         assert_eq!(Oem::Oplus as u32, 1);
+        assert_eq!(Oem::Xiaomi as u32, 2);
     }
 
     fn stub_ok(_b: &mut [u8], _s: u32) -> PatchOutcome {

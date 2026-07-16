@@ -27,6 +27,55 @@ EFI_STATUS InstallSpssHook (VOID);
 EFI_STATUS InstallBlockIoHook (VOID);
 EFI_STATUS InstallEbsHook (VOID);
 EFI_STATUS InstallXiaomiHook (VOID);
+BOOLEAN BlockIoHook_HasXiaomiReserve (VOID);
+
+/* ------------------------------------------------------------------
+ * Shared partition-name helpers
+ * ------------------------------------------------------------------ */
+
+/** Case-insensitive CHAR16 equality for ASCII range. **/
+static inline BOOLEAN
+HookCommonChar16EqualNoCase (
+  IN CHAR16  A,
+  IN CHAR16  B
+  )
+{
+  if (A >= L'A' && A <= L'Z') {
+    A = (CHAR16)(A | 0x20);
+  }
+  if (B >= L'A' && B <= L'Z') {
+    B = (CHAR16)(B | 0x20);
+  }
+  return A == B;
+}
+
+/** Case-insensitive GPT-name prefix match.
+    Want must be a prefix and the next stored char must be NUL or space,
+    or the GPT 36-char partition-name field is exhausted. **/
+static inline BOOLEAN
+HookCommonPartitionNameMatches (
+  IN CONST CHAR16  *Stored,
+  IN CONST CHAR16  *Want
+  )
+{
+  UINTN Index;
+
+  if (Stored == NULL || Want == NULL) {
+    return FALSE;
+  }
+
+  for (Index = 0; Index < 36 && Want[Index] != L'\0'; Index++) {
+    if (!HookCommonChar16EqualNoCase (Stored[Index], Want[Index])) {
+      return FALSE;
+    }
+  }
+
+  if (Index >= 36) {
+    return TRUE;
+  }
+
+  return Stored[Index] == L'\0' || Stored[Index] == L' ';
+}
 
 /* ------------------------------------------------------------------
  * Reentry guard

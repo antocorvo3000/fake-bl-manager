@@ -15,6 +15,8 @@ typedef struct {
   UINT32   SpssExpectedSlots;
   UINT32   BlockIoInstalledSlots;
   UINT32   BlockIoExpectedSlots;
+  UINT32   XiaomiInstalledSlots;
+  UINT32   XiaomiExpectedSlots;
   /* Aggregate flags. */
   BOOLEAN  UniversalRequiredOk;
   BOOLEAN  ModeOverlayOk;

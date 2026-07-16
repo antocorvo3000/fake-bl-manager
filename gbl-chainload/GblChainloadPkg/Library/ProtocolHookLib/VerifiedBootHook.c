@@ -41,6 +41,7 @@
 #include <Protocol/EFIVerifiedBoot.h>
 #include "HookCommon.h"
 #include "FakelockOverlay.h"
+#include "XiaomiOverlay.h"
 #include "UniversalBaseline.h"
 
 STATIC QCOM_VERIFIEDBOOT_PROTOCOL    *gHookedVb               = NULL;
@@ -80,6 +81,51 @@ VbDeviceStateOpName (
     case READ_CONFIG:  return "READ";
     case WRITE_CONFIG: return "WRITE";
     default:           return "?";
+  }
+}
+
+/* ------------------------------------------------------------------
+ * OEM-aware overlay dispatchers.
+ * When the manifest identifies a Xiaomi device, route fakelock policy
+ * through XiaomiOverlay_* so popsicle-specific offsets/layout win.
+ * Otherwise keep the generic FakelockOverlay path.
+ * ------------------------------------------------------------------ */
+STATIC EFI_STATUS EFIAPI
+VbOverlay_OnVbWriteConfig (
+  IN UINT32  Op,
+  IN VOID   *Buf,
+  IN UINT32  BufLen
+  )
+{
+  if (gManifest.Oem == GBL_OEM_XIAOMI) {
+    return XiaomiOverlay_OnVbWriteConfig (Op, Buf, BufLen);
+  }
+  return VbOverlay_OnVbWriteConfig (Op, Buf, BufLen);
+}
+
+STATIC EFI_STATUS EFIAPI
+VbOverlay_OnVbReadConfig_Post (
+  IN  EFI_STATUS  OrigStatus,
+  IN  VOID       *Buf,
+  IN  UINT32      BufLen
+  )
+{
+  if (gManifest.Oem == GBL_OEM_XIAOMI) {
+    return XiaomiOverlay_OnVbReadConfig_Post (OrigStatus, Buf, BufLen);
+  }
+  return VbOverlay_OnVbReadConfig_Post (OrigStatus, Buf, BufLen);
+}
+
+STATIC VOID EFIAPI
+VbOverlay_OnVbDeviceInit_PrePost (
+  IN OUT device_info_vb_t *Devinfo,
+  IN     BOOLEAN           IsPre
+  )
+{
+  if (gManifest.Oem == GBL_OEM_XIAOMI) {
+    XiaomiOverlay_OnVbDeviceInit_PrePost (Devinfo, IsPre);
+  } else {
+    VbOverlay_OnVbDeviceInit_PrePost (Devinfo, IsPre);
   }
 }
 
@@ -131,7 +177,7 @@ HookedVBRwDeviceState (
     return EFI_NOT_READY;
   }
   if (gManifest.WantFakelockHook && Op == WRITE_CONFIG) {
-    Status = FakelockOverlay_OnVbWriteConfig ((UINT32)Op, Buf, BufLen);
+    Status = VbOverlay_OnVbWriteConfig ((UINT32)Op, Buf, BufLen);
     HookLeave (&gVbGuard);
     return Status;
   }
@@ -140,7 +186,7 @@ HookedVBRwDeviceState (
     Status = gOrigVbRwDeviceState (This, Op, Buf, BufLen);
     /* Fakelock policy enforced on reentry too — same as first-entry path. */
     if (gManifest.WantFakelockHook && Op == READ_CONFIG) {
-      FakelockOverlay_OnVbReadConfig_Post (Status, Buf, BufLen);
+      VbOverlay_OnVbReadConfig_Post (Status, Buf, BufLen);
     }
     HookLeave (&gVbGuard);
     return Status;
@@ -156,7 +202,7 @@ HookedVBRwDeviceState (
   Status = gOrigVbRwDeviceState (This, Op, Buf, BufLen);
 
   if (gManifest.WantFakelockHook && Op == READ_CONFIG) {
-    FakelockOverlay_OnVbReadConfig_Post (Status, Buf, BufLen);
+    VbOverlay_OnVbReadConfig_Post (Status, Buf, BufLen);
   }
 
   if (Op != WRITE_CONFIG) {
@@ -191,24 +237,24 @@ HookedVBDeviceInit (
   if (!First) {
     /* Fakelock policy enforced on reentry too — same as first-entry path. */
     if (gManifest.WantFakelockHook) {
-      FakelockOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/TRUE);
+      VbOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/TRUE);
     }
     Status = gOrigVbDeviceInit (This, Devinfo);
     if (gManifest.WantFakelockHook) {
-      FakelockOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/FALSE);
+      VbOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/FALSE);
     }
     HookLeave (&gVbGuard);
     return Status;
   }
 
   if (gManifest.WantFakelockHook) {
-    FakelockOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/TRUE);
+    VbOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/TRUE);
   }
 
   Status = gOrigVbDeviceInit (This, Devinfo);
 
   if (gManifest.WantFakelockHook) {
-    FakelockOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/FALSE);
+    VbOverlay_OnVbDeviceInit_PrePost (Devinfo, /*IsPre=*/FALSE);
   }
   Unlocked       = (Devinfo != NULL) ? (UINT32)Devinfo->is_unlocked        : 0xFF;
   UnlockCritical = (Devinfo != NULL) ? (UINT32)Devinfo->is_unlock_critical : 0xFF;

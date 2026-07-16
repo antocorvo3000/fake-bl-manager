@@ -13,6 +13,7 @@
 #define XIAOMI_OVERLAY_H_
 
 #include <Uefi.h>
+#include <Protocol/EFIVerifiedBoot.h>
 #include "HookCommon.h"
 
 /** Xiaomi fakelock policy for mitrustedui QSEECOM commands.
@@ -28,9 +29,36 @@ XiaomiOverlay_ShouldDropQseeMiTrustedUi (
   OUT EFI_STATUS  *FakeStatus
   );
 
+/** Xiaomi fakelock policy for VBRwDeviceState(READ_CONFIG) post-call mutator.
+    Clears is_unlocked and is_unlock_critical in the returned device-state
+    buffer. Returns OrigStatus unchanged. **/
+EFI_STATUS EFIAPI
+XiaomiOverlay_OnVbReadConfig_Post (
+  IN  EFI_STATUS  OrigStatus,
+  IN  VOID       *Buf,
+  IN  UINT32      BufLen
+  );
+
+/** Xiaomi fakelock policy for VBDeviceInit pre/post clear. **/
+VOID EFIAPI
+XiaomiOverlay_OnVbDeviceInit_PrePost (
+  IN OUT device_info_vb_t *Devinfo,
+  IN     BOOLEAN           IsPre
+  );
+
+/** Xiaomi fakelock policy for VBRwDeviceState(WRITE_CONFIG). Returns
+    EFI_SUCCESS and does NOT forward to the original. **/
+EFI_STATUS EFIAPI
+XiaomiOverlay_OnVbWriteConfig (
+  IN UINT32  Op,
+  IN VOID   *Buf,
+  IN UINT32  BufLen
+  );
+
 /** Initialize Xiaomi-specific protocol hook additions.
     Called from InstallAll.c when popsicle is detected. **/
 EFI_STATUS
 XiaomiInitProtocolHooks (VOID);
 
 #endif /* XIAOMI_OVERLAY_H_ */
+

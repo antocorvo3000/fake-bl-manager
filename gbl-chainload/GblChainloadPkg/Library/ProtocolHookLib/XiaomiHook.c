@@ -302,14 +302,14 @@ XiaomiDecodeMiTrustedUiCmd (
   switch (CmdId) {
     case 0x00000004: {
       /* Version query — mirror OplusSec pattern but for mitrustedui. */
-      VERBOSE ("xmi-mitru | cmd=0x%02x(GetVersion) | h=%u | sl=%u | rl=%u | st=%r\n",
-               CmdId, Handle, SendLen, RspLen, Status);
+      GBL_INFO ("xmi-mitru | cmd=0x%02x(GetVersion) | h=%u | sl=%u | rl=%u | st=%r\n",
+                CmdId, Handle, SendLen, RspLen, Status);
       break;
     }
 
     default: {
-      VERBOSE ("xmi-mitru | cmd=0x%02x(unknown) | h=%u | sl=%u | rl=%u | st=%r\n",
-               CmdId, Handle, SendLen, RspLen, Status);
+      GBL_INFO ("xmi-mitru | cmd=0x%02x(unknown) | h=%u | sl=%u | rl=%u | st=%r\n",
+                CmdId, Handle, SendLen, RspLen, Status);
       break;
     }
   }

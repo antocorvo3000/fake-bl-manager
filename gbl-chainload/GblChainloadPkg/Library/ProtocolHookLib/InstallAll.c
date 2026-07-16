@@ -14,6 +14,9 @@
     EbsHook is declared in HookCommon.h but not yet implemented; it is not
     called here until its source file lands.
 **/
+#include <Uefi/UefiGpt.h>
+#include <Protocol/BlockIo.h>
+
 #include <Library/UefiLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/DebugLib.h>
@@ -24,8 +27,45 @@
 #include <Library/ProtocolHookLib.h>
 #include <Library/DeviceInfo.h>
 
+extern EFI_GUID  gEfiPartitionRecordGuid;
+
 #include "HookCommon.h"
 #include "XiaomiOverlay.h"
+
+/** Probe BlockIo partition names for a Xiaomi-style GPT layout.
+    If a "devinfo" partition exists, treat this device as Xiaomi/popsicle
+    and force the OEM discriminant so downstream overlays are selected. **/
+STATIC BOOLEAN
+DetectXiaomiDevice (VOID)
+{
+  EFI_STATUS           Status;
+  EFI_HANDLE          *Handles;
+  UINTN                HandleCount;
+  UINTN                Index;
+  EFI_PARTITION_ENTRY *PartEntry;
+
+  Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiBlockIoProtocolGuid,
+                                    NULL, &HandleCount, &Handles);
+  if (EFI_ERROR (Status) || Handles == NULL) {
+    return FALSE;
+  }
+
+  for (Index = 0; Index < HandleCount; Index++) {
+    PartEntry = NULL;
+    Status = gBS->HandleProtocol (Handles[Index], &gEfiPartitionRecordGuid,
+                                  (VOID **)&PartEntry);
+    if (EFI_ERROR (Status) || PartEntry == NULL) {
+      continue;
+    }
+    if (HookCommonPartitionNameMatches (PartEntry->PartitionName, L"devinfo")) {
+      gBS->FreePool (Handles);
+      return TRUE;
+    }
+  }
+
+  gBS->FreePool (Handles);
+  return FALSE;
+}
 
 EFI_STATUS
 EFIAPI
@@ -39,6 +79,13 @@ ProtocolHook_InstallAll (
     return EFI_INVALID_PARAMETER;
   }
   ZeroMem (Result, sizeof (*Result));
+
+  /* Detect Xiaomi early so VerifiedBoot/BlockIo overlays can route to the
+     correct OEM policy before any hooks are installed. */
+  if (DetectXiaomiDevice ()) {
+    gManifest.Oem = GBL_OEM_XIAOMI;
+    GBL_INFO ("ProtocolHookLib: detected Xiaomi device (devinfo present)\n");
+  }
 
   /* 1. VerifiedBoot -- required iff fakelock-hook cap is set
         (fakelock/persistence overlay needs the VB slot mutators);
@@ -164,14 +211,15 @@ ProtocolHook_InstallAll (
 
   GBL_INFO (
     "ProtocolHookLib: installed (fakelock=%u profile_spoof=%u,"
-    " vb=%u/%u scm=%u/%u qsee=%u/%u spss=%u/%u blockio=%u/%u)\n",
+    " vb=%u/%u scm=%u/%u qsee=%u/%u spss=%u/%u blockio=%u/%u xiaomi=%u/%u)\n",
     (UINT32)gManifest.WantFakelockHook,
     (UINT32)gManifest.WantProfileSpoof,
     Result->VbInstalledSlots,      Result->VbExpectedSlots,
     Result->ScmInstalledSlots,     Result->ScmExpectedSlots,
     Result->QseecomInstalledSlots, Result->QseecomExpectedSlots,
     Result->SpssInstalledSlots,    Result->SpssExpectedSlots,
-    Result->BlockIoInstalledSlots, Result->BlockIoExpectedSlots
+    Result->BlockIoInstalledSlots, Result->BlockIoExpectedSlots,
+    Result->XiaomiInstalledSlots,  Result->XiaomiExpectedSlots
     );
   return EFI_SUCCESS;
 }

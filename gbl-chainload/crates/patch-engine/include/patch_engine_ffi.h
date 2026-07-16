@@ -69,8 +69,9 @@ typedef struct {
 /* ---- enum GBL_OEM -----------------------------------------------------
  * OEM group selector. NONE = abl_permissive only (no OEM patches). */
 enum {
-    GBL_OEM_NONE  = 0,
-    GBL_OEM_OPLUS = 1,
+    GBL_OEM_NONE   = 0,
+    GBL_OEM_OPLUS  = 1,
+    GBL_OEM_XIAOMI = 2,
 };
 typedef int GBL_OEM;
 

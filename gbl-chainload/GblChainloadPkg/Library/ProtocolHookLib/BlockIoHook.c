@@ -22,6 +22,7 @@
 #include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
 #include <Library/GblLog.h>
+#include <Library/GblPayloadLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
 #include <Protocol/BlockIo.h>
@@ -43,6 +44,7 @@ typedef struct {
   CHAR16                  PartitionName[36];
   CHAR8                   PartitionNameAscii[37];
   BOOLEAN                 IsOplusReserve1;
+  BOOLEAN                 IsXiaomiReserve;
   BOOLEAN                 IsEfisp;
   BOOLEAN                 Active;
 } BLOCK_IO_HOOK_RECORD;
@@ -53,55 +55,23 @@ STATIC UINTN                 gBlockIoRecordCount = 0;
 HOOK_REENTRY_DEFINE (gBlockIoGuard);
 
 STATIC BOOLEAN
-Char16EqualNoCase (
-  IN CHAR16  A,
-  IN CHAR16  B
-  )
-{
-  if (A >= L'A' && A <= L'Z') {
-    A = (CHAR16)(A | 0x20);
-  }
-  if (B >= L'A' && B <= L'Z') {
-    B = (CHAR16)(B | 0x20);
-  }
-  return A == B;
-}
-
-/** Case-insensitive GPT-name match with the same permissive boundary rule used
-    by AblUnwrapLib: Want must be a prefix and the next stored char must be NUL
-    or space, or the GPT 36-char partition-name field is exhausted. **/
-STATIC BOOLEAN
-PartitionNameMatches (
-  IN CONST CHAR16  *Stored,
-  IN CONST CHAR16  *Want
-  )
-{
-  UINTN Index;
-
-  if (Stored == NULL || Want == NULL) {
-    return FALSE;
-  }
-
-  for (Index = 0; Index < 36 && Want[Index] != L'\0'; Index++) {
-    if (!Char16EqualNoCase (Stored[Index], Want[Index])) {
-      return FALSE;
-    }
-  }
-
-  if (Index >= 36) {
-    return TRUE;
-  }
-
-  return Stored[Index] == L'\0' || Stored[Index] == L' ';
-}
-
-STATIC BOOLEAN
 IsOplusReservePartitionName (
   IN CONST CHAR16  *Name
   )
 {
-  return PartitionNameMatches (Name, L"oplusreserve1") ||
-         PartitionNameMatches (Name, L"opporeserve1");
+  return HookCommonPartitionNameMatches (Name, L"oplusreserve1") ||
+         HookCommonPartitionNameMatches (Name, L"opporeserve1");
+}
+
+STATIC BOOLEAN
+IsXiaomiReservePartitionName (
+  IN CONST CHAR16  *Name
+  )
+{
+  /* Xiaomi does not use a single "reserve" partition like Oplus.
+     devinfo (8KB, Qualcomm device_info_vb_t) is the closest equivalent
+     for unlock-state persistence. */
+  return HookCommonPartitionNameMatches (Name, L"devinfo");
 }
 
 STATIC VOID
@@ -307,6 +277,19 @@ HookedWriteBlocks (
     return EFI_SUCCESS;
   }
 
+  if (Record->IsXiaomiReserve && gManifest.WantFakelockHook) {
+    if (TopLevel) {
+      GBL_INFO ("blockio | op=write-swallow | reason=xiaomi-reserve | p=%a | lba=%Lu | bytes=%u | blocks=%Lu | status=%r\n",
+                Record->PartitionNameAscii,
+                (UINT64)Lba,
+                (UINT32)BufferSize,
+                TransferBlockCount (This, BufferSize),
+                EFI_SUCCESS);
+    }
+    HookLeave (&gBlockIoGuard);
+    return EFI_SUCCESS;
+  }
+
   Status = Record->OriginalWriteBlocks (This, MediaId, Lba, BufferSize, Buffer);
 
   if (TopLevel) {
@@ -320,6 +303,19 @@ HookedWriteBlocks (
   HookLeave (&gBlockIoGuard);
 
   return Status;
+}
+
+BOOLEAN
+BlockIoHook_HasXiaomiReserve (VOID)
+{
+  UINTN Index;
+
+  for (Index = 0; Index < gBlockIoRecordCount; Index++) {
+    if (gBlockIoRecords[Index].Active && gBlockIoRecords[Index].IsXiaomiReserve) {
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 EFI_STATUS
@@ -359,8 +355,10 @@ InstallBlockIoHook (VOID)
         continue;
       }
 
-      IsReserve = IsOplusReservePartitionName (PartEntry->PartitionName);
-      if ((Pass == 0 && !IsReserve) || (Pass == 1 && IsReserve)) {
+      IsReserve = IsOplusReservePartitionName (PartEntry->PartitionName) ||
+                  (gManifest.Oem == GBL_OEM_XIAOMI &&
+                   IsXiaomiReservePartitionName (PartEntry->PartitionName));
+      if ((Pass == 0 && !IsReserve) || (Pass == 1 && !IsReserve)) {
         continue;
       }
 
@@ -386,8 +384,10 @@ InstallBlockIoHook (VOID)
       gBlockIoRecords[gBlockIoRecordCount].OriginalWriteBlocks  = BlockIo->WriteBlocks;
       gBlockIoRecords[gBlockIoRecordCount].LastBlockAtInstall   = (BlockIo->Media != NULL) ? BlockIo->Media->LastBlock : 0;
       gBlockIoRecords[gBlockIoRecordCount].BlockSizeAtInstall   = (BlockIo->Media != NULL) ? BlockIo->Media->BlockSize : 0;
-      gBlockIoRecords[gBlockIoRecordCount].IsOplusReserve1      = IsReserve;
-      gBlockIoRecords[gBlockIoRecordCount].IsEfisp              = PartitionNameMatches (PartEntry->PartitionName, L"efisp");
+      gBlockIoRecords[gBlockIoRecordCount].IsOplusReserve1      = IsOplusReservePartitionName (PartEntry->PartitionName);
+      gBlockIoRecords[gBlockIoRecordCount].IsXiaomiReserve      = (gManifest.Oem == GBL_OEM_XIAOMI &&
+                                                                   IsXiaomiReservePartitionName (PartEntry->PartitionName));
+      gBlockIoRecords[gBlockIoRecordCount].IsEfisp              = HookCommonPartitionNameMatches (PartEntry->PartitionName, L"efisp");
       gBlockIoRecords[gBlockIoRecordCount].Active               = TRUE;
       CopyPartitionName36 (gBlockIoRecords[gBlockIoRecordCount].PartitionName,
                            gBlockIoRecords[gBlockIoRecordCount].PartitionNameAscii,
@@ -396,11 +396,12 @@ InstallBlockIoHook (VOID)
       BlockIo->ReadBlocks  = HookedReadBlocks;
       BlockIo->WriteBlocks = HookedWriteBlocks;
 
-      VERBOSE ("BlockIoHook: installed p=%a last=%Lu block=%u oplus=%u\n",
+      VERBOSE ("BlockIoHook: installed p=%a last=%Lu block=%u oplus=%u xiaomi=%u\n",
                gBlockIoRecords[gBlockIoRecordCount].PartitionNameAscii,
                (UINT64)gBlockIoRecords[gBlockIoRecordCount].LastBlockAtInstall,
                gBlockIoRecords[gBlockIoRecordCount].BlockSizeAtInstall,
-               (UINT32)gBlockIoRecords[gBlockIoRecordCount].IsOplusReserve1);
+               (UINT32)gBlockIoRecords[gBlockIoRecordCount].IsOplusReserve1,
+               (UINT32)gBlockIoRecords[gBlockIoRecordCount].IsXiaomiReserve);
 
       if (IsReserve) {
         ReserveInstalled++;
@@ -411,7 +412,7 @@ InstallBlockIoHook (VOID)
 
     if (Pass == 0 && ReserveInstalled == 0) {
       gBS->FreePool (Handles);
-      DEBUG ((DEBUG_ERROR, "BlockIoHook: no oplus/oppo reserve1 BlockIo slot installed\n"));
+      DEBUG ((DEBUG_ERROR, "BlockIoHook: no reserve BlockIo slot installed\n"));
       return EFI_NOT_FOUND;
     }
   }
