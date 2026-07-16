@@ -95,9 +95,9 @@ download_abl_version() {
 
 get_safe_version() {
     local device="$1"
-    
+
     case "$device" in
-        *17*Pro*Max*|*popsicle*)
+        *17*Pro*Max*|*popsicle*|*2509FPN0BC*)
             echo "OS3.0.290"
             ;;
         *14*Ultra*|*panther*)
