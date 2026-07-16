@@ -13,6 +13,7 @@ VOID EFIAPI
 GblPayload_LogProvenance (IN EFI_HANDLE  ImageHandle);
 
 #include "../../../crates/mode2-profile-core/include/mode2_profile_ffi.h"
+#include "../../../crates/patch-engine/include/patch_engine_ffi.h"
 
 /* Locate the GBLP1 overlay, find the mode2_profile (0x0010) entry, and
    parse it. Returns:
@@ -26,9 +27,7 @@ GblPayload_LoadMode2Profile (IN  EFI_HANDLE                ImageHandle,
 /* Engine capability manifest, firmware-facing form. The wire-level
    cap_bits field is translated into named booleans here so call sites
    read as `if (gManifest.WantFakelockHook)` instead of bit math.
-   Discriminants match `enum GBL_OEM` from the patch-engine FFI:
-     0 = NONE, 1 = OPLUS, 2 = XIAOMI */
-typedef enum { GBL_OEM_NONE = 0, GBL_OEM_OPLUS = 1, GBL_OEM_XIAOMI = 2 } GBL_OEM;
+   GBL_OEM (0 = NONE, 1 = OPLUS, 2 = XIAOMI) comes from patch_engine_ffi.h. */
 
 struct GblManifest {
   BOOLEAN WantFakelockHook;
