@@ -58,13 +58,10 @@ jobs:
           cp upload/gbl-chainload-popsicle-verbose.efi zip/base/gbl-chainload.efi
           cp target/aarch64-linux-android/release/gbl zip/bin/gbl
           chmod +x zip/bin/gbl
-          cd zip/bin
-          GBL_HASH=$(sha256sum gbl | awk '{print $1}')
-          BUSYBOX_HASH=$(sha256sum busybox-arm64 | awk '{print $1}')
-          cd ../base
-          EFI_HASH=$(sha256sum gbl-chainload.efi | awk '{print $1}')
-          cd ..
-          printf '# zip-gbl-chainload vendored-artifact manifest\n# parent-commit: %s\n# parent-dirty: 0\n%s  bin/gbl\n%s  bin/busybox-arm64\n%s  base/gbl-chainload.efi\n' "$(git rev-parse HEAD)" "$GBL_HASH" "$BUSYBOX_HASH" "$EFI_HASH" > bin/MANIFEST
+          GBL_HASH=$(sha256sum zip/bin/gbl | awk '{print $1}')
+          BUSYBOX_HASH=$(sha256sum zip/bin/busybox-arm64 | awk '{print $1}')
+          EFI_HASH=$(sha256sum zip/base/gbl-chainload.efi | awk '{print $1}')
+          printf '# zip-gbl-chainload vendored-artifact manifest\n# parent-commit: %s\n# parent-dirty: 0\n%s  bin/gbl\n%s  bin/busybox-arm64\n%s  base/gbl-chainload.efi\n' "$(git rev-parse HEAD)" "$GBL_HASH" "$BUSYBOX_HASH" "$EFI_HASH" > zip/bin/MANIFEST
           bash scripts/build-recovery-zip.sh --mode mode-1-install
           cp dist/gbl-chainload-mode-1-install.zip upload/gbl-chainload-popsicle-mode1.zip
 
