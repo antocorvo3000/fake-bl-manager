@@ -55,6 +55,8 @@ jobs:
       - name: Stage mode-1 install ZIP
         working-directory: ./gbl-chainload
         run: |
+          sudo rm -rf dist
+          mkdir -p dist upload
           cp upload/gbl-chainload-popsicle-verbose.efi zip/base/gbl-chainload.efi
           cp target/aarch64-linux-android/release/gbl zip/bin/gbl
           chmod +x zip/bin/gbl
