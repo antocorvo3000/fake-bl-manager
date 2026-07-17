@@ -64,14 +64,7 @@ jobs:
           cd ../base
           EFI_HASH=$(sha256sum gbl-chainload.efi | awk '{print $1}')
           cd ..
-          cat > bin/MANIFEST <<EOF
-# zip-gbl-chainload vendored-artifact manifest
-# parent-commit: $(git rev-parse HEAD)
-# parent-dirty: 0
-$GBL_HASH  bin/gbl
-$BUSYBOX_HASH  bin/busybox-arm64
-$EFI_HASH  base/gbl-chainload.efi
-EOF
+          printf '# zip-gbl-chainload vendored-artifact manifest\n# parent-commit: %s\n# parent-dirty: 0\n%s  bin/gbl\n%s  bin/busybox-arm64\n%s  base/gbl-chainload.efi\n' "$(git rev-parse HEAD)" "$GBL_HASH" "$BUSYBOX_HASH" "$EFI_HASH" > bin/MANIFEST
           bash scripts/build-recovery-zip.sh --mode mode-1-install
           cp dist/gbl-chainload-mode-1-install.zip upload/gbl-chainload-popsicle-mode1.zip
 
